@@ -15,3 +15,40 @@ function guiProxy(){
         iFrame.src = req
     }
 }
+
+function guiUpload(){
+    const fileInput = document.getElementById('fUpload').files[0];
+    if(!fileInput){
+        alert("No file specified");
+        return;
+    }
+    const formData = new FormData();
+    formData.append('file', fileInput);
+    fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+    }).then(response => response.text())
+    .then(result => {
+        document.location.reload(true);
+    }).catch(error => {
+        alert(error);
+    });
+}
+
+function guiLinkUpload(){
+    const fileLink = document.getElementById('fLink').value;
+    if(!fileLink){
+        alert("No file link specified");
+        return
+    }
+    fetch('/api/uploadLink', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `link=${encodeURIComponent(fileLink)}`
+    }).then(response => response.text())
+    .then(result => {
+        document.location.reload(true);
+    }).catch(error => {
+        alert(error);
+    });
+}

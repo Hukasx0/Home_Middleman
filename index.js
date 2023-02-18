@@ -5,7 +5,10 @@ const http = require('http');
 const https = require('https');
 const url = require('url');
 const fs = require('fs');
+const bodyParser = require('body-parser');
 const app = express();
+
+app.use(bodyParser.urlencoded({ extended: true }));
 
 const host = 'localhost';
 const port = 1337;
@@ -33,7 +36,11 @@ app.get('/proxy', (req, res) => {
 
 app.get('/files', (req, res) => {
     fs.readFile('web/files.html', 'utf-8', (err, data) => {
-        res.send(data);
+        let filesL = '';
+        (fs.readdirSync("upload/")).forEach((fileName) => {
+            filesL += `<li><a href="api/download/${fileName}">${fileName}</a></li>`;
+        });
+        res.send(data.replace('<!-- insert files -->',filesL));
     });
 });
 
@@ -121,6 +128,23 @@ app.post('/api/upload', upload.single('file'), (req, res) => {
     }
     else{
         res.status(200).send("File uploaded successfully");
+    }
+});
+
+app.post('/api/uploadLink', (req, res) => {
+    // curl --header "Content-Type: application/x-www-form-urlencoded" --request POST --data "link=https://example.com/image.png" http://localhost:1337/api/uploadLink
+    const fileLink = req.body.link;
+    if (!fileLink) {
+        res.status(400).send("No file url specified");
+    }
+    else{
+        const fName = fileLink.substring(fileLink.lastIndexOf('/')+1);
+        const f = fs.createWriteStream(`upload/${fName}`);
+        https.get(fileLink, (response) => {
+            response.pipe(f).on('close', () => {
+                res.status(200).send("File downloaded successfully from provided link");
+            });
+        });
     }
 });
 
