@@ -4,6 +4,7 @@ const path = require('path');
 const http = require('http');
 const https = require('https');
 const url = require('url');
+const fs = require('fs');
 const app = express();
 
 const host = 'localhost';
@@ -19,10 +20,47 @@ const storage = multer.diskStorage({
 }); const upload = multer({ storage: storage });
 
 app.get('/', (req, res) => {
-    res.send("Hello world!");
+    fs.readFile('web/index.html', 'utf-8', (err, data) => {
+        res.send(data);
+    });
 });
 
-app.get('/httpp/*', (req, res) => {
+app.get('/proxy', (req, res) => {
+    fs.readFile('web/proxy.html', 'utf-8', (err, data) => {
+        res.send(data);
+    });
+});
+
+app.get('/files', (req, res) => {
+    fs.readFile('web/files.html', 'utf-8', (err, data) => {
+        res.send(data);
+    });
+});
+
+app.get('/api', (req, res) => {
+    fs.readFile('web/api.html', 'utf-8', (err, data) => {
+        res.send(data);
+    });
+});
+
+
+app.get('/css/main.css', (req, res) => {
+    fs.readFile('web/css/main.css', 'utf-8', (err, data) => {
+        res.writeHead(200, { 'Content-Type': 'text/css'});
+        res.write(data);
+        res.end();
+    });
+});
+
+app.get('/js/main.js', (req, res) => {
+    fs.readFile('web/js/main.js', 'utf-8', (err, data) => {
+        res.writeHead(200, { 'Content-Type': 'application/javascript' });
+        res.write(data);
+        res.end();
+    });
+});
+
+app.get('/api/httpp/*', (req, res) => {
     const npurl = "http://"+req.params[0];
     const purl = url.parse(npurl);
     const options = {
@@ -35,7 +73,7 @@ app.get('/httpp/*', (req, res) => {
     http.get(options, (response) => {
         if (response.statusCode >= 300 && response.statusCode < 400){
             const repRedirectUrl = (response.headers.location).replace("http://", '');
-            res.redirect(`http://${host}:${port}/httpp/`+repRedirectUrl);
+            res.redirect(`http://${host}:${port}/api/httpp/`+repRedirectUrl);
         }
         else{
             let data = '';
@@ -49,7 +87,7 @@ app.get('/httpp/*', (req, res) => {
     });
 });
 
-app.get('/httpps/*', (req, res) => {
+app.get('/api/httpps/*', (req, res) => {
     const npurl = "https://"+req.params[0];
     const purl = url.parse(npurl);
     const options = {
@@ -62,7 +100,7 @@ app.get('/httpps/*', (req, res) => {
     https.get(options, (response) => {
         if (response.statusCode >= 300 && response.statusCode < 400){
             const repRedirectUrl = (response.headers.location).replace("https://", '');
-            res.redirect(`http://${host}:${port}/httpps/`+repRedirectUrl);
+            res.redirect(`http://${host}:${port}/api/httpps/`+repRedirectUrl);
         }
         else{
             let data = '';
@@ -76,7 +114,7 @@ app.get('/httpps/*', (req, res) => {
     });
 });
 
-app.post('/upload', upload.single('file'), (req, res) => {
+app.post('/api/upload', upload.single('file'), (req, res) => {
     // curl -X POST -F "file=@example.txt" http://localhost:1337/upload
     if(!req.file){
         res.status(400).send("No file specified");
@@ -86,7 +124,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
     }
 });
 
-app.get('/download/:fileName', (req, res) => {
+app.get('/api/download/:fileName', (req, res) => {
     const fileName = req.params.fileName;
     res.sendFile(path.join(__dirname, 'upload/'+fileName));
 });
