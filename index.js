@@ -35,7 +35,6 @@ function html2txt(html) {
     $('img').replaceWith(imgs);
     $('script, style').remove();
     const title = $('title').text();
-    const p = $('p').text();
     const body = ($('body').text()).replace(/\n+/g, '\n');
     return `title: \t\t${title}
     ${body}`;
@@ -180,7 +179,7 @@ app.get('/api/txt/httpps/*', (req, res) => {
     https.get(options, (response) => {
         if (response.statusCode >= 300 && response.statusCode < 400){
             const repRedirectUrl = (response.headers.location).replace("https://", '');
-            res.redirect(`http://${host}:${port}/api/httpps/`+repRedirectUrl);
+            res.redirect(`http://${host}:${port}/api/txt/httpps/`+repRedirectUrl);
         }
         else{
             let data = '';
