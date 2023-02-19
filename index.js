@@ -6,6 +6,7 @@ const https = require('https');
 const url = require('url');
 const fs = require('fs');
 const bodyParser = require('body-parser');
+const cheerio = require('cheerio');
 const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -21,6 +22,24 @@ const storage = multer.diskStorage({
       cb(null, file.originalname);
     },
 }); const upload = multer({ storage: storage });
+
+function html2txt(html) {
+    const $ = cheerio.load(html);
+    $('a').each((i, el) => {
+        const linkText = $(el).text();
+        const linkUrl = $(el).attr('href');
+        const linkFormattedText = `~~~ ${linkText} => ${linkUrl} ~~~`;
+        $(el).text(linkFormattedText);
+      });
+    const imgs = $('<p>').text(`\n*** ${$('img').attr('alt')} => ${$('img').attr('src')} ***\n`);
+    $('img').replaceWith(imgs);
+    $('script, style').remove();
+    const title = $('title').text();
+    const p = $('p').text();
+    const body = ($('body').text()).replace(/\n+/g, '\n');
+    return `title: \t\t${title}
+    ${body}`;
+}
 
 app.get('/', (req, res) => {
     fs.readFile('web/index.html', 'utf-8', (err, data) => {
@@ -94,6 +113,33 @@ app.get('/api/httpp/*', (req, res) => {
     });
 });
 
+app.get('/api/txt/httpp/*', (req, res) => {
+    const npurl = "http://"+req.params[0];
+    const purl = url.parse(npurl);
+    const options = {
+        host: purl.hostname,
+        path: purl.path,
+        headers: {
+            'User-Agent': 'example'
+        }
+    };
+    http.get(options, (response) => {
+        if (response.statusCode >= 300 && response.statusCode < 400){
+            const repRedirectUrl = (response.headers.location).replace("http://", '');
+            res.redirect(`http://${host}:${port}/api/txt/httpp/`+repRedirectUrl);
+        }
+        else{
+            let data = '';
+            response.on('data', (chunk) => {
+                data+=chunk;
+            });
+            response.on('end', () => {
+                res.send(html2txt(data));
+            });
+        }
+    });
+});
+
 app.get('/api/httpps/*', (req, res) => {
     const npurl = "https://"+req.params[0];
     const purl = url.parse(npurl);
@@ -116,6 +162,33 @@ app.get('/api/httpps/*', (req, res) => {
         });
         response.on('end', () => {
             res.send(data);
+        });
+        }
+    });
+});
+
+app.get('/api/txt/httpps/*', (req, res) => {
+    const npurl = "https://"+req.params[0];
+    const purl = url.parse(npurl);
+    const options = {
+        host: purl.hostname,
+        path: purl.path,
+        headers: {
+            'User-Agent': 'example'
+        }
+    };
+    https.get(options, (response) => {
+        if (response.statusCode >= 300 && response.statusCode < 400){
+            const repRedirectUrl = (response.headers.location).replace("https://", '');
+            res.redirect(`http://${host}:${port}/api/httpps/`+repRedirectUrl);
+        }
+        else{
+            let data = '';
+        response.on('data', (chunk) => {
+            data += chunk;
+        });
+        response.on('end', () => {
+            res.send(html2txt(data));
         });
         }
     });
