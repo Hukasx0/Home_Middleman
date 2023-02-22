@@ -225,6 +225,23 @@ app.get('/api/download/:fileName', (req, res) => {
     res.sendFile(path.join(__dirname, 'upload/'+fileName));
 });
 
+app.post('/api/write/:path', (req, res) => {
+    const savePath = String(req.params.path);
+    const fileName = String(req.body.name);
+    if(!fileName){
+	res.send("No name specified");
+    }
+    const fileData = String(req.body.data);
+    if(!fileData){
+	res.send("No data specified");
+    }
+    fs.mkdir(path.join(__dirname, `upload/${savePath}`), {recursive: true}, (err) => {
+	fs.writeFile(path.join(__dirname, `upload/${savePath}/${fileName}`), fileData, (erro) => {
+	    res.send("FIle created successfully!");
+	});
+    });
+});
+
 app.listen(port, () => {
     console.log(`server is running on port http://${host}:${port}/`);
 });
