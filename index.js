@@ -237,9 +237,40 @@ app.post('/api/write/:path', (req, res) => {
     }
     fs.mkdir(path.join(__dirname, `upload/${savePath}`), {recursive: true}, (err) => {
 	fs.writeFile(path.join(__dirname, `upload/${savePath}/${fileName}`), fileData, (erro) => {
-	    res.send("FIle created successfully!");
+	    res.send("File created successfully!");
 	});
     });
+});
+
+app.post('/api/parse/html/tag', (req, res) =>{
+    const txt = String(req.body.data);
+    const pType = String(req.body.pType);
+    const $ = cheerio.load(txt);
+    console.log(txt);
+    console.log(pType);
+    let ret = [];
+    $(pType).each((i, el) => {
+	ret.push($(el).text());
+    });
+    res.send(ret);
+});
+
+app.post('/api/parse/html/byid', (req, res) => {
+    const txt = String(req.body.data);
+    const hid = String(req.body.id);
+    const $ = cheerio.load(txt);
+    res.send($("#"+hid).text());
+});
+
+app.post('/api/parse/html/byclass', (req, res) => {
+    const txt = String(req.body.data);
+    const hcl = String(req.body.class);
+    const $ = cheerio.load(txt);
+    let ret = [];
+    $("."+hcl).each((e, el) => {
+	ret.push($(el).text());
+    });
+    res.send(ret);
 });
 
 app.listen(port, () => {
