@@ -24,6 +24,7 @@ const storage = multer.diskStorage({
 }); const upload = multer({ storage: storage });
 
 let gTasks = [];
+let gTasksLog = [];
 
 function html2txt(html) {
     const $ = cheerio.load(html);
@@ -41,6 +42,38 @@ function html2txt(html) {
     return `title: \t\t${title}
     ${body}`;
 }
+
+function doTask(req){
+    const tName = String(req.body.name);
+    let a = gTasks.find(ob => ob.name == tName);
+    let reqd = '';
+    switch(a.type){
+    case "http":
+	reqd = `http://${host}:${port}/api/httpp/${a.data}`;
+	break;
+    case "https":
+	reqd = `http://${host}:${port}/api/httpps/${a.data}`;
+	break;
+    case "httptxt":
+	reqd = `http://${host}:${port}/api/txt/httpp/${a.data}`;
+	break;
+    case "httpstxt":
+	reqd = `http://${host}:${port}/api/txt/httpps/${a.data}`;
+	break;
+    default:
+	reqd = 'http://example.com';
+    }
+    let rdata = '';
+    http.get(reqd, (response) => {
+	let data = '';
+	response.on('data', (chunk) => {
+	    data += chunk;
+	});
+	response.on('end', () =>{
+	    gTasksLog.push(data);
+	});
+    });
+ }
 
 app.get('/', (req, res) => {
     fs.readFile('web/index.html', 'utf-8', (err, data) => {
@@ -283,34 +316,7 @@ app.post('/api/task/add', (req, res) => {
     res.send(gTasks)
 });
 app.post('/api/task/run', (req, res) => {
-    const tName = String(req.body.name);
-    let a = gTasks.find(ob => ob.name == tName);
-    let reqd = '';
-    switch(a.type){
-    case "http":
-	reqd = `http://${host}:${port}/api/httpp/${a.data}`;
-	break;
-    case "https":
-	reqd = `http://${host}:${port}/api/httpps/${a.data}`;
-	break;
-    case "httptxt":
-	reqd = `http://${host}:${port}/api/txt/httpp/${a.data}`;
-	break;
-    case "httpstxt":
-	reqd = `http://${host}:${port}/api/txt/httpps/${a.data}`;
-	break;
-    default:
-	reqd = 'http://example.com';
-    }
-    http.get(reqd, (response) => {
-	let data = '';
-	response.on('data', (chunk) => {
-	    data += chunk;
-	});
-	response.on('end', () =>{
-	    res.send(data);
-	});
-    });
+    res.send(doTask(req));
 });
 
 app.post('/api/task/del', (req, res) => {
@@ -319,8 +325,34 @@ app.post('/api/task/del', (req, res) => {
     res.send(`Task with name ${tName} has been removed`);
 });
 
+app.post('/api/task/time/run', (req, res) => {
+    const tTime = parseInt(req.body.time, 10);
+    setTimeout(() => {
+	doTask(req);
+    },tTime)
+    res.send("Time task started");
+});
+
 app.get('/api/task', (req, res) => {
     res.send(gTasks);
+});
+
+app.get('/api/task/log/', (req, res) => {
+    res.send({'return': gTasksLog});
+});
+
+app.get('/api/task/count', (req, res) => {
+    res.send("logs: "+(gTasksLog.length));
+});
+
+app.get('/api/task/log/:logid', (req, res) => {
+    if(String(req.params.logid) == "n"){
+	res.send(gTasksLog[gTasksLog.length-1]);
+    }
+    else{
+    const logid = parseInt(req.params.logid);
+	res.send(gTasksLog[logid]);
+    }
 });
 
 app.listen(port, () => {
