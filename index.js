@@ -23,6 +23,8 @@ const storage = multer.diskStorage({
     },
 }); const upload = multer({ storage: storage });
 
+let gTasks = [];
+
 function html2txt(html) {
     const $ = cheerio.load(html);
     $('a').each((i, el) => {
@@ -271,6 +273,54 @@ app.post('/api/parse/html/byclass', (req, res) => {
 	ret.push($(el).text());
     });
     res.send(ret);
+});
+
+app.post('/api/task/add', (req, res) => {
+    const tName = String(req.body.name);
+    const tType = String(req.body.type);
+    const tData = String(req.body.data);
+    gTasks.push({'name': tName, 'type': tType, 'data': tData });
+    res.send(gTasks)
+});
+app.post('/api/task/run', (req, res) => {
+    const tName = String(req.body.name);
+    let a = gTasks.find(ob => ob.name == tName);
+    let reqd = '';
+    switch(a.type){
+    case "http":
+	reqd = `http://${host}:${port}/api/httpp/${a.data}`;
+	break;
+    case "https":
+	reqd = `http://${host}:${port}/api/httpps/${a.data}`;
+	break;
+    case "httptxt":
+	reqd = `http://${host}:${port}/api/txt/httpp/${a.data}`;
+	break;
+    case "httpstxt":
+	reqd = `http://${host}:${port}/api/txt/httpps/${a.data}`;
+	break;
+    default:
+	reqd = 'http://example.com';
+    }
+    http.get(reqd, (response) => {
+	let data = '';
+	response.on('data', (chunk) => {
+	    data += chunk;
+	});
+	response.on('end', () =>{
+	    res.send(data);
+	});
+    });
+});
+
+app.post('/api/task/del', (req, res) => {
+    const tName = String(req.body.name);
+    gTasks = gTasks.filter(ob => ob.name !== tName);
+    res.send(`Task with name ${tName} has been removed`);
+});
+
+app.get('/api/task', (req, res) => {
+    res.send(gTasks);
 });
 
 app.listen(port, () => {
