@@ -25,6 +25,7 @@ const storage = multer.diskStorage({
 
 let gTasks = [];
 let gTasksLog = [];
+let gIntervals = [];
 
 function html2txt(html) {
     const $ = cheerio.load(html);
@@ -61,7 +62,7 @@ function doTask(req){
 	reqd = `http://${host}:${port}/api/txt/httpps/${a.data}`;
 	break;
     default:
-	reqd = 'http://example.com';
+	reqd = `http://example.com`;
     }
     let rdata = '';
     http.get(reqd, (response) => {
@@ -353,6 +354,25 @@ app.get('/api/task/log/:logid', (req, res) => {
     const logid = parseInt(req.params.logid);
 	res.send(gTasksLog[logid]);
     }
+});
+
+app.post('/api/task/interval/add', (req, res) => {
+    const intTime = parseInt(req.body.time, 10);
+    gIntervals.push(setInterval(() => {
+	doTask(req);
+    },intTime));
+    res.send("Added new interval")
+});
+
+app.get('/api/task/interval/count', (req, res) => {
+    res.send("intervals: "+gIntervals.length);
+});
+
+app.get('/api/task/interval/kill/:iid', (req, res) => {
+    const iid = parseInt(req.params.iid, 10);
+    const cid = gIntervals.splice(iid, 1);
+    clearInterval(parseInt(cid));
+    res.send(`interval with ${iid} id has been stopped`);
 });
 
 app.listen(port, () => {
