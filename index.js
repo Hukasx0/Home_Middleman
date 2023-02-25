@@ -61,6 +61,12 @@ function doTask(req){
     case "httpstxt":
 	reqd = `http://${host}:${port}/api/txt/httpps/${a.data}`;
 	break;
+    case "scrapurl":
+    reqd = `http://${host}:${port}/api/scraper/links/?link=${a.data}`;
+    break;
+    case "scrapimg":
+    reqd = `http://${host}:${port}/api/scraper/imgs/?link=${a.data}`;
+    break;
     default:
 	reqd = `http://example.com`;
     }
@@ -307,37 +313,6 @@ app.post('/api/write/:path', (req, res) => {
     });
 });
 
-app.post('/api/parse/html/tag', (req, res) =>{
-    const txt = String(req.body.data);
-    const pType = String(req.body.pType);
-    const $ = cheerio.load(txt);
-    console.log(txt);
-    console.log(pType);
-    let ret = [];
-    $(pType).each((i, el) => {
-	ret.push($(el).text());
-    });
-    res.send(ret);
-});
-
-app.post('/api/parse/html/byid', (req, res) => {
-    const txt = String(req.body.data);
-    const hid = String(req.body.id);
-    const $ = cheerio.load(txt);
-    res.send($("#"+hid).text());
-});
-
-app.post('/api/parse/html/byclass', (req, res) => {
-    const txt = String(req.body.data);
-    const hcl = String(req.body.class);
-    const $ = cheerio.load(txt);
-    let ret = [];
-    $("."+hcl).each((e, el) => {
-	ret.push($(el).text());
-    });
-    res.send(ret);
-});
-
 app.post('/api/task/add', (req, res) => {
     const tName = String(req.body.name);
     const tType = String(req.body.type);
@@ -402,6 +377,84 @@ app.get('/api/task/interval/kill/:iid', (req, res) => {
     clearInterval(parseInt(iid));
     gIntervals = gIntervals.filter(inte => inte != iid);
     res.send(`interval with ${iid} id has been stopped`);
+});
+
+app.get('/api/scraper/links/', (req, res) => {
+    const target = "https://"+req.query.link;
+    const purl = url.parse(target);
+    const options = {
+        host: purl.hostname,
+        path: purl.path,
+        headers: {
+            'User-Agent': 'example'
+        }
+    };
+    https.get(options, (response) => {
+        if (response.statusCode >= 300 && response.statusCode < 400){
+            const repRedirectUrl = (response.headers.location).replace("https://", '');
+            res.redirect(`http://${host}:${port}/api/scraper/links/`+repRedirectUrl);
+        }
+        else{
+            let data = '';
+        response.on('data', (chunk) => {
+            data += chunk;
+        });
+        response.on('end', () => {
+            let links = [];
+            const $ = cheerio.load(data);
+            $('a').each((i, el) => {
+                const linkUrl = $(el).attr('href');
+                links.push({ 'link': linkUrl});
+              });
+              fs.writeFile(path.join(__dirname, `upload/${req.query.link}.json`), JSON.stringify(links, null, 2), (erro) => {
+                res.send("Links scrapped successfully!");
+            });
+        });
+        }
+    });
+});
+
+app.get('/api/scraper/imgs/', (req, res) => {
+    const target = "https://"+req.query.link;
+    const purl = url.parse(target);
+    const options = {
+        host: purl.hostname,
+        path: purl.path,
+        headers: {
+            'User-Agent': 'example'
+        }
+    };
+    https.get(options, (response) => {
+        if (response.statusCode >= 300 && response.statusCode < 400){
+            const repRedirectUrl = (response.headers.location).replace("https://", '');
+            res.redirect(`http://${host}:${port}/api/scraper/imgs/`+repRedirectUrl);
+        }
+        else{
+            let data = '';
+        response.on('data', (chunk) => {
+            data += chunk;
+        });
+        response.on('end', () => {
+            const $ = cheerio.load(data);
+            $('img').each((i, el) => {
+                let imgUrl = $(el).attr('src');
+                if(imgUrl.startsWith("/")){
+                    imgUrl = url.resolve(target, imgUrl);
+                }
+                if(!imgUrl.startsWith("https://")){
+                    imgUrl = url.resolve(target,"/", imgUrl);
+                }
+                const filename = path.basename(imgUrl);
+                const filepath = path.join(__dirname, 'upload/', filename);
+                https.get(imgUrl, (res) => {
+                    const fileStream = fs.createWriteStream(filepath);
+                    res.pipe(fileStream);
+                  });
+              });
+        });
+        }
+    });
+    res.send("Images downloaded from url");
 });
 
 app.listen(port, () => {
