@@ -22,13 +22,13 @@
                 <a class="nav-link" href="/">Home</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/routine">Routine</a>
+                <a class="nav-link active" href="/routine">Routine</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="/tasks">Tasks</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link active" href="/api">Api</a>
+                <a class="nav-link" href="/api">Api</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="/files">Files</a>
@@ -41,7 +41,24 @@
         </div>
       </nav>
       <main>
-        <!-- something -->
+        <h2>Start routine</h2>
+        <div class="row">
+            <div class="col-1">
+                <select class="form-select" id="intName">
+                    <!-- import tasks -->
+                  </select>
+            </div>
+            <div class="col-1">
+                <input type="number" name="intTime" id="intTime" placeholder="Do every x minutes">
+            </div>
+            <div class="col-1">
+                <button class="btn btn-outline-secondary" type="button" onclick="startRoutine()">start</button>  
+            </div>  
+        </div>
+        <h2>Running tasks in routine</h2>
+        <ul>
+        <!-- routine -->
+        </ul>
       </main>
       <footer class="border-top">
         <div class="p-3">
@@ -49,5 +66,6 @@
         </div>
       </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>

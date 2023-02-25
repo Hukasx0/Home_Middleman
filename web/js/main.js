@@ -52,3 +52,51 @@ function guiLinkUpload(){
         alert(error);
     });
 }
+
+function newTask(){
+    const tName = document.getElementById('tName').value;
+    const tType = document.getElementById('tType').value;
+    const tData = document.getElementById('tData').value;
+    fetch('/api/task/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `name=${encodeURIComponent(tName)}&type=${encodeURIComponent(tType)}&data=${encodeURIComponent(tData)}`
+    }).then(response => response.text())
+    .then(result => {
+        document.location.reload(true);
+    }).catch(error => {
+        alert(error);
+    });
+}
+
+function startTask(){
+    const tName = document.getElementById('stName').value;
+    fetch('/api/task/run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `name=${encodeURIComponent(tName)}`
+    }).then(response => response.text())
+    .then(result => {
+        document.location.reload(true);
+        console.log(result);
+    }).catch(error => {
+        alert(error);
+    });
+}
+
+function startRoutine(){
+    const tName = document.getElementById('intName').value;
+    const tTime = parseInt(document.getElementById('intTime').value, 10);
+    const tMins = tTime * 60000;
+    fetch('/api/task/interval/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `name=${encodeURIComponent(tName)}&time=${encodeURIComponent(tMins)}&`
+    }).then(response => response.text())
+    .then(result => {
+        document.location.reload(true);
+        console.log(result);
+    }).catch(error => {
+        alert(error);
+    });
+}

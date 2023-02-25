@@ -104,6 +104,35 @@ app.get('/api', (req, res) => {
     });
 });
 
+app.get('/tasks', (req, res) => {
+    fs.readFile('web/tasks.html', 'utf-8', (err, data) => {
+        let tasks = '';
+        let stasks = '';
+        gTasks.forEach((t) => {
+            tasks += `<li>${t.name} | ${t.type} | ${t.data} <a href="/api/task/del/${t.name}">remove</a></li>`;
+            stasks += `<option value="${t.name}">${t.name}</option>`;
+        });
+        data = data.replace("<!-- import tasks -->", stasks);
+        res.send(data.replace("<!-- tasks -->", tasks));
+    });
+});
+
+app.get('/routine', (req, res) => {
+    fs.readFile('web/routine.html', 'utf-8', (err, data) => {
+        let intervals = '';
+        let stasks = '';
+        gIntervals.forEach((i) => {
+            intervals += `<li>${i} <a href="/api/task/interval/kill/${i}">remove</a></li>`;
+        });
+        gTasks.forEach((t) => {
+            stasks += `<option value="${t.name}">${t.name}</option>`;
+        });
+        data = data.replace("<!-- import tasks -->",stasks);
+        res.send(data.replace("<!-- routine -->",intervals));
+    });
+});
+
+
 
 app.get('/css/main.css', (req, res) => {
     fs.readFile('web/css/main.css', 'utf-8', (err, data) => {
@@ -320,8 +349,8 @@ app.post('/api/task/run', (req, res) => {
     res.send(doTask(req));
 });
 
-app.post('/api/task/del', (req, res) => {
-    const tName = String(req.body.name);
+app.get('/api/task/del/:name', (req, res) => {
+    const tName = String(req.params.name);
     gTasks = gTasks.filter(ob => ob.name !== tName);
     res.send(`Task with name ${tName} has been removed`);
 });
@@ -370,8 +399,8 @@ app.get('/api/task/interval/count', (req, res) => {
 
 app.get('/api/task/interval/kill/:iid', (req, res) => {
     const iid = parseInt(req.params.iid, 10);
-    const cid = gIntervals.splice(iid, 1);
-    clearInterval(parseInt(cid));
+    clearInterval(parseInt(iid));
+    gIntervals = gIntervals.filter(inte => inte != iid);
     res.send(`interval with ${iid} id has been stopped`);
 });
 
