@@ -13,6 +13,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 const host = 'localhost';
 const port = 1337;
+const userAgent = "example";
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -67,6 +68,9 @@ function doTask(req){
     case "scrapimg":
     reqd = `http://${host}:${port}/api/scraper/imgs/?link=${a.data}`;
     break;
+    case "cheerioc":
+    reqd = `http://${host}:${port}/api/scraper/cheeriohtml/?link=${a.data}`;
+    break;
     default:
 	reqd = `http://example.com`;
     }
@@ -101,12 +105,6 @@ app.get('/files', (req, res) => {
             filesL += `<li><a href="api/download/${fileName}">${fileName}</a></li>`;
         });
         res.send(data.replace('<!-- insert files -->',filesL));
-    });
-});
-
-app.get('/api', (req, res) => {
-    fs.readFile('web/api.html', 'utf-8', (err, data) => {
-        res.send(data);
     });
 });
 
@@ -163,7 +161,7 @@ app.get('/api/httpp/*', (req, res) => {
         host: purl.hostname,
         path: purl.path,
         headers: {
-            'User-Agent': 'example'
+            'User-Agent': userAgent
         }
     };
     http.get(options, (response) => {
@@ -190,7 +188,7 @@ app.get('/api/txt/httpp/*', (req, res) => {
         host: purl.hostname,
         path: purl.path,
         headers: {
-            'User-Agent': 'example'
+            'User-Agent': userAgent
         }
     };
     http.get(options, (response) => {
@@ -217,7 +215,7 @@ app.get('/api/httpps/*', (req, res) => {
         host: purl.hostname,
         path: purl.path,
         headers: {
-            'User-Agent': 'example'
+            'User-Agent': userAgent
         }
     };
     https.get(options, (response) => {
@@ -244,7 +242,7 @@ app.get('/api/txt/httpps/*', (req, res) => {
         host: purl.hostname,
         path: purl.path,
         headers: {
-            'User-Agent': 'example'
+            'User-Agent': userAgent
         }
     };
     https.get(options, (response) => {
@@ -386,7 +384,7 @@ app.get('/api/scraper/links/', (req, res) => {
         host: purl.hostname,
         path: purl.path,
         headers: {
-            'User-Agent': 'example'
+            'User-Agent': userAgent
         }
     };
     https.get(options, (response) => {
@@ -406,7 +404,7 @@ app.get('/api/scraper/links/', (req, res) => {
                 const linkUrl = $(el).attr('href');
                 links.push({ 'link': linkUrl});
               });
-              fs.writeFile(path.join(__dirname, `upload/${req.query.link}.json`), JSON.stringify(links, null, 2), (erro) => {
+              fs.writeFile(path.join(__dirname, `upload/${(req.query.link).replace(/[./]/g, '_')}.json`), JSON.stringify(links, null, 2), (erro) => {
                 res.send("Links scrapped successfully!");
             });
         });
@@ -421,7 +419,7 @@ app.get('/api/scraper/imgs/', (req, res) => {
         host: purl.hostname,
         path: purl.path,
         headers: {
-            'User-Agent': 'example'
+            'User-Agent': userAgent
         }
     };
     https.get(options, (response) => {
@@ -455,6 +453,41 @@ app.get('/api/scraper/imgs/', (req, res) => {
         }
     });
     res.send("Images downloaded from url");
+});
+
+app.get('/api/scraper/cheeriohtml', (req, res) => {
+    const target = "https://"+req.query.link;
+    const elem = req.query.parse;
+    const purl = url.parse(target);
+    const options = {
+        host: purl.hostname,
+        path: purl.path,
+        headers: {
+            'User-Agent': userAgent
+        }
+    };
+    https.get(options, (response) => {
+        if (response.statusCode >= 300 && response.statusCode < 400){
+            const repRedirectUrl = (response.headers.location).replace("https://", '');
+            res.redirect(`http://${host}:${port}/api/scraper/links/`+repRedirectUrl);
+        }
+        else{
+            let data = '';
+        response.on('data', (chunk) => {
+            data += chunk;
+        });
+        response.on('end', () => {
+            let rets = [];
+            const $ = cheerio.load(data);
+            $(elem).each((i, el) => {
+                rets += $(el).html()
+              });
+              fs.writeFile(path.join(__dirname, `upload/${(req.query.link).replace(/[./]/g, '_')}.html`), rets, (erro) => {
+                res.send(`${elem} scrapped successfully!`);
+            });
+        });
+        }
+    });
 });
 
 app.listen(port, () => {

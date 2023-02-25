@@ -28,9 +28,6 @@
                 <a class="nav-link active" href="/tasks">Tasks</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/api">Api</a>
-              </li>
-              <li class="nav-item">
                 <a class="nav-link" href="/files">Files</a>
               </li>
               <li class="nav-item">
@@ -65,10 +62,24 @@
                     <option value="httptxt">httptxt</option>
                     <option value="scrapurl">linkScrapper</option>
                     <option value="scrapimg">imageScrapper</option>
+                    <option value="cheerioc">cheerio custom scrapper</option>
                   </select>
             </div>
             <div class="col-2">
                 <input type="text" id="tData" class="form-control" placeholder="data">
+                <input type="text" id="tData2" class="form-control" placeholder="second data" hidden>
+                <script>
+                  const sel = document.getElementById('tType')
+                  const secin = document.getElementById('tData2');
+                
+                  sel.addEventListener('change', () => {
+                    if (sel.value === 'cheerioc') {
+                      secin.hidden = false;
+                    } else {
+                      secin.hidden = true;
+                    }
+                  });
+                </script>
             </div>
             <div class="col-1">
                 <button class="btn btn-outline-secondary" type="button" onclick="newTask()">add</button>  

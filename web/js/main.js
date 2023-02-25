@@ -56,7 +56,11 @@ function guiLinkUpload(){
 function newTask(){
     const tName = document.getElementById('tName').value;
     const tType = document.getElementById('tType').value;
-    const tData = document.getElementById('tData').value;
+    let tData = document.getElementById('tData').value;
+    if (tType=="cheerioc"){
+        const tData2 = document.getElementById('tData2').value;
+        tData += `&parse=${tData2}`;
+    }
     fetch('/api/task/add', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
