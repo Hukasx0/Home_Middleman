@@ -104,3 +104,35 @@ function startRoutine(){
         alert(error);
     });
 }
+
+function addToClipboard(){
+    const inpc = document.getElementById('addToClip').value;
+    fetch('/api/clip/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `data=${encodeURIComponent(inpc)}`
+    }).then(response => response.text())
+    .then(result => {
+        document.location.reload(true);
+        console.log(result);
+    }).catch(error => {
+        alert(error);
+    });
+}
+
+function addNote(){
+    const nName = document.getElementById('nName').value;
+    const nText = document.getElementById('nText').value;
+    const nDate = document.getElementById('nDate').value;
+    fetch('/api/notes/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `name=${encodeURIComponent(nName)}&text=${encodeURIComponent(nText)}&date=${encodeURIComponent(nDate)}`
+    }).then(response => response.text())
+    .then(result => {
+        document.location.reload(true);
+        console.log(result);
+    }).catch(error => {
+        alert(error);
+    });
+}

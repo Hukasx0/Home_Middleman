@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Routine | Home Middleman</title>
+    <title>Clipboard | Home Middleman</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
     <link rel="stylesheet" href="css/main.css">
@@ -22,7 +22,7 @@
                 <a class="nav-link" href="/">Home</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link active" href="/routine">Routine</a>
+                <a class="nav-link" href="/routine">Routine</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="/tasks">Tasks</a>
@@ -34,7 +34,7 @@
                 <a class="nav-link" href="/notes">Notes</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/clipboard">Clipboard</a>
+                <a class="nav-link active" href="/clipboard">Clipboard</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="/proxy">Proxy</a>
@@ -44,24 +44,35 @@
         </div>
       </nav>
       <main>
-        <h2>Start routine</h2>
         <div class="row">
+            <h2>Add to clipboard</h2>
             <div class="col-auto">
-                <select class="form-select" id="intName">
-                    <!-- import tasks -->
-                  </select>
+                <input type="text" name="addToClip" id="addToClip">
             </div>
             <div class="col-auto">
-                <input type="number" name="intTime" id="intTime" placeholder="Do every x minutes">
+                <button class="btn btn-outline-secondary" type="button" onclick="addToClipboard();">add</button> 
             </div>
             <div class="col-auto">
-                <button class="btn btn-outline-secondary" type="button" onclick="startRoutine()">start</button>  
-            </div>  
+                <a href="/api/clip/erase">clear clipboard</a>
+            </div>
         </div>
-        <h2>Running tasks in routine</h2>
-        <ul>
-        <!-- routine -->
-        </ul>
+        <div class="row text-center">
+            <!-- copyme -->
+            <script>
+                function toClipboard(){
+                    const clipw = document.getElementById('copyMe').textContent;
+                    navigator.clipboard.writeText(clipw).then(() => {
+                        alert("Copied successfully");
+                    },() => {
+                        alert("Writing to clipboard failed")
+                    });
+                }
+            </script>
+            <ul>
+                <!-- insert history -->
+            </ul>
+        </div>
+
       </main>
       <footer class="border-top">
         <div class="p-3">

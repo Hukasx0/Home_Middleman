@@ -28,7 +28,7 @@ let gTasks = [];
 let gTasksLog = [];
 let gIntervals = [];
 let gClip = [];
-let gTodo = [];
+let gNotes = [];
 
 function html2txt(html) {
     const $ = cheerio.load(html);
@@ -76,7 +76,6 @@ function doTask(req){
     default:
 	reqd = `http://example.com`;
     }
-    let rdata = '';
     http.get(reqd, (response) => {
 	let data = '';
 	response.on('data', (chunk) => {
@@ -97,6 +96,39 @@ app.get('/', (req, res) => {
 app.get('/proxy', (req, res) => {
     fs.readFile('web/proxy.html', 'utf-8', (err, data) => {
         res.send(data);
+    });
+});
+
+app.get('/notes', (req, res) => {
+    fs.readFile('web/notes.html', 'utf-8', (err, data) => {
+        let notes = '';
+        for (let i = gNotes.length - 1; i >= 0; i--) {
+            cgn = gNotes[i];
+            notes += `
+            <div class="card">
+                <h2 class="text-center">${cgn.name}</h2>
+                <div class="card-body">
+                <p class="text-center">${cgn.text}</p>
+                </div>
+                <div class="card-body">
+                    <p class="text-center">${cgn.date}</p>
+                    <a href="/api/notes/del/${cgn.name}">remove note</a>
+                </div>
+                `; 
+        }
+        data = data.replace('<!-- notes -->',notes);
+        res.send(data);
+    });
+});
+
+app.get('/clipboard', (req, res) => {
+    fs.readFile('web/clip.html', 'utf-8', (err, data) => {
+        let scb = '';
+        for (let i = gClip.length - 1; i >= 0; i--) {
+            scb += `<li>${gClip[i]}</li>`;
+        }
+        data = data.replace("<!-- insert history -->", scb);
+        res.send(data.replace("<!-- copyme -->",`<h1 id="copyMe" style="color: darkblue;" role="button" onclick="toClipboard()">${gClip[gClip.length-1]}</h1>`));
     });
 });
 
@@ -513,23 +545,23 @@ app.get('/api/clip/erase', (req, res) => {
     res.send('Clipboard erased');
 });
 
-app.get('/api/todo', (req, res) => {
-    res.send(gTodo);
+app.get('/api/notes', (req, res) => {
+    res.send(gNotes);
 });
 
-app.post('/api/todo/add', (req, res) => {
-    gTodo.push({
+app.post('/api/notes/add', (req, res) => {
+    gNotes.push({
 	'name': req.body.name,
 	'text': req.body.text,
 	'date': req.body.date
     });
-    res.send(`'${req.body.name}' TODO added`);
+    res.send(`'${req.body.name}' note added`);
 });
 
-app.get('/api/todo/del/:name', (req, res) => {
-    const todoName = String(req.params.name);
-    gTodo = gTodo.filter(ob => ob.name !== todoName);
-    res.send(`${todoName} removed`);
+app.get('/api/notes/del/:name', (req, res) => {
+    const noteName = String(req.params.name);
+    gNotes = gNotes.filter(ob => ob.name !== noteName);
+    res.send(`${noteName} removed`);
 });
 
 app.listen(port, () => {
