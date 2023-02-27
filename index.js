@@ -27,6 +27,8 @@ const storage = multer.diskStorage({
 let gTasks = [];
 let gTasksLog = [];
 let gIntervals = [];
+let gClip = [];
+let gTodo = [];
 
 function html2txt(html) {
     const $ = cheerio.load(html);
@@ -126,7 +128,7 @@ app.get('/routine', (req, res) => {
         let intervals = '';
         let stasks = '';
         gIntervals.forEach((i) => {
-            intervals += `<li>${i} <a href="/api/task/interval/kill/${i}">remove</a></li>`;
+            intervals += `<li>${i.name} every ${i.time/60000} minutes <a href="/api/task/interval/kill/${i.id}">remove</a></li>`;
         });
         gTasks.forEach((t) => {
             stasks += `<option value="${t.name}">${t.name}</option>`;
@@ -360,9 +362,12 @@ app.get('/api/task/log/:logid', (req, res) => {
 
 app.post('/api/task/interval/add', (req, res) => {
     const intTime = parseInt(req.body.time, 10);
-    gIntervals.push(setInterval(() => {
-	doTask(req);
-    },intTime));
+    gIntervals.push({
+	'name': req.body.name,
+	'id':(setInterval(() => {
+	        doTask(req);
+	},intTime)),
+        'time': intTime}); 
     res.send("Added new interval")
 });
 
@@ -373,7 +378,7 @@ app.get('/api/task/interval/count', (req, res) => {
 app.get('/api/task/interval/kill/:iid', (req, res) => {
     const iid = parseInt(req.params.iid, 10);
     clearInterval(parseInt(iid));
-    gIntervals = gIntervals.filter(inte => inte != iid);
+    gIntervals = gIntervals.filter(inte => inte.id != iid);
     res.send(`interval with ${iid} id has been stopped`);
 });
 
@@ -488,6 +493,43 @@ app.get('/api/scraper/cheeriohtml', (req, res) => {
         });
         }
     });
+});
+
+app.get('/api/clip', (req, res) => {
+    res.send(gClip[gClip.length-1]);
+});
+
+app.post('/api/clip/save', (req, res) => {
+    gClip.push(req.body.data);
+    res.send('data saved to clip');
+});
+
+app.get('/api/clip/history', (req, res) => {
+    res.send(gClip);
+});
+
+app.get('/api/clip/erase', (req, res) => {
+    gClip = [];
+    res.send('Clipboard erased');
+});
+
+app.get('/api/todo', (req, res) => {
+    res.send(gTodo);
+});
+
+app.post('/api/todo/add', (req, res) => {
+    gTodo.push({
+	'name': req.body.name,
+	'text': req.body.text,
+	'date': req.body.date
+    });
+    res.send(`'${req.body.name}' TODO added`);
+});
+
+app.get('/api/todo/del/:name', (req, res) => {
+    const todoName = String(req.params.name);
+    gTodo = gTodo.filter(ob => ob.name !== todoName);
+    res.send(`${todoName} removed`);
 });
 
 app.listen(port, () => {
