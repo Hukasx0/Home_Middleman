@@ -73,6 +73,9 @@ function doTask(req){
     case "cheerioc":
     reqd = `http://${host}:${port}/api/scraper/cheeriohtml/?link=${a.data}`;
     break;
+    case "cclip":
+    reqd = `http://${host}:${port}/api/clip/erase`;
+    break;
     default:
 	reqd = `http://example.com`;
     }
