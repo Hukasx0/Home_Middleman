@@ -331,6 +331,14 @@ app.get('/api/download/:fileName', (req, res) => {
     res.sendFile(path.join(__dirname, 'upload/'+fileName));
 });
 
+app.get('/api/files/list', (req, res) => {
+    let filesL = '';
+    (fs.readdirSync("upload/")).forEach((fileName) => {
+        filesL += `${fileName} `;
+    });
+    res.send(filesL);
+});
+
 app.post('/api/write/:path', (req, res) => {
     const savePath = String(req.params.path);
     const fileName = String(req.body.name);
@@ -393,6 +401,14 @@ app.get('/api/task/log/:logid', (req, res) => {
     const logid = parseInt(req.params.logid);
 	res.send(gTasksLog[logid]);
     }
+});
+
+app.get('/api/task/interval', (req, res) => {
+    inter = '';
+    gIntervals.forEach((t) => {
+        inter += `${t.name} every ${t.time / 60000} minutes\n`;
+    });
+    res.send(inter);
 });
 
 app.post('/api/task/interval/add', (req, res) => {
