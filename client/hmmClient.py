@@ -80,7 +80,16 @@ def scrapper(i):
         print("scrapper links <https://example.com>\nscrapper imgs <https://example.com>\nscrapper cheerio <https://example.com> <what you want to scrap, example: div.article>")
         
 def files(i):
-    print (requests.get(hmmAddr+"/api/files/list").text)
+    if len(i)<=1:
+        print (requests.get(hmmAddr+"/api/files/list").text)
+    elif i[1] == "del":
+        print (requests.get(hmmAddr+"/api/files/del?path="+i[2]).text)
+    elif i[1] == "mv":
+        print (requests.get(hmmAddr+"/api/files/mv?old="+i[2]+"&new="+i[3]).text)
+    elif i[1] == "write":
+        print (requests.post(hmmAddr+"/api/write/", data={'path': i[2], 'name': i[3], 'data': i[4]}).text)
+    elif i[1] == "help":
+        print ("files\nfiles del <filename>\nfiles mv <oldname> <newname>\nfiles write <filepath> <filename> <filedata>")
     
 def ex(i):
     quit()
@@ -140,7 +149,7 @@ def splitWithoutQuo(txt, delimiter=' '):
     return result
 
 def autoComplete(txt, state):
-    options = ['tasks', 'routine', 'clip', 'notes', 'upload', 'download', 'scrapper','proxy','files','help','exit', 'add','http','httptxt','https','httpstxt','del','run','log','link','erase','links','imgs','cheerio']
+    options = ['tasks', 'routine', 'clip', 'notes', 'upload', 'download', 'scrapper','proxy','files','help','exit', 'add','http','httptxt','https','httpstxt','del','run','log','link','erase','links','imgs','cheerio','mv','write']
     matches = [option for option in options if option.startswith(txt)]
     try:
         return matches[state]

@@ -339,8 +339,20 @@ app.get('/api/files/list', (req, res) => {
     res.send(filesL);
 });
 
-app.post('/api/write/:path', (req, res) => {
-    const savePath = String(req.params.path);
+app.get('/api/files/del', (req, res) => {
+    fs.unlink(path.join(__dirname, `upload/${req.query.path}`), (err) => {
+	res.send(`${req.query.path} removed successfully`);
+    });
+});
+
+app.get('/api/files/mv', (req, res) => {
+    fs.rename(path.join(__dirname, `upload/${req.query.old}`), path.join(__dirname, `upload/${req.query.new}`), (err) => {
+	res.send(`${req.query.old} has been renamed to ${req.query.new}`);
+    });
+});
+
+app.post('/api/write/', (req, res) => {
+    const savePath = String(req.body.path);
     const fileName = String(req.body.name);
     if(!fileName){
 	res.send("No name specified");
