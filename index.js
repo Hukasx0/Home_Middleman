@@ -115,7 +115,7 @@ app.get('/notes', (req, res) => {
                 </div>
                 <div class="card-body">
                     <p class="text-center">${cgn.date}</p>
-                    <a href="/api/notes/del/${cgn.name}">remove note</a>
+                    <p role="button" style="color:blue;" onclick="getRemove('/api/notes/del/${cgn.name}')">remove note</p>
                 </div>
                 `; 
         }
@@ -139,7 +139,7 @@ app.get('/files', (req, res) => {
     fs.readFile('web/files.html', 'utf-8', (err, data) => {
         let filesL = '';
         (fs.readdirSync("upload/")).forEach((fileName) => {
-            filesL += `<li><a href="api/download/${fileName}">${fileName}</a></li>`;
+            filesL += `<li><a href="api/download/${fileName}">${fileName}</a> <i class="bi bi-trash3" role="button" style="color:blueviolet;" onclick="getRemove('/api/files/del?path=${fileName}')"></i></li>`;
         });
         res.send(data.replace('<!-- insert files -->',filesL));
     });
@@ -150,7 +150,7 @@ app.get('/tasks', (req, res) => {
         let tasks = '';
         let stasks = '';
         gTasks.forEach((t) => {
-            tasks += `<li>${t.name} | ${t.type} | ${t.data} <a href="/api/task/del/${t.name}">remove</a></li>`;
+            tasks += `<li>${t.name} | ${t.type} | ${t.data} <i class="bi bi-trash3" role="button" style="color:blueviolet;" onclick="getRemove('/api/task/del/${t.name}')"></i></li>`;
             stasks += `<option value="${t.name}">${t.name}</option>`;
         });
         data = data.replace("<!-- import tasks -->", stasks);
@@ -163,7 +163,7 @@ app.get('/routine', (req, res) => {
         let intervals = '';
         let stasks = '';
         gIntervals.forEach((i) => {
-            intervals += `<li>${i.name} every ${i.time/60000} minutes <a href="/api/task/interval/kill/${i.id}">remove</a></li>`;
+            intervals += `<li>${i.name} every ${i.time/60000} minutes <i class="bi bi-calendar-x" role="button" style="color:blueviolet;" onclick="getRemove('/api/task/interval/kill/${i.id}')"></i></li>`;
         });
         gTasks.forEach((t) => {
             stasks += `<option value="${t.name}">${t.name}</option>`;

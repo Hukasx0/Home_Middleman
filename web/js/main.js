@@ -136,3 +136,15 @@ function addNote(){
         alert(error);
     });
 }
+
+function getRemove(linkC){
+    fetch(linkC, {
+        method: 'GET',
+    }).then(response => response.text())
+    .then(result => {
+        document.location.reload(true);
+        console.log(result);
+    }).catch(error => {
+        alert(error);
+    });
+}
