@@ -1,0 +1,76 @@
+\documentclass{article}
+
+\usepackage{fancyhdr}
+
+
+\pagestyle{fancy}
+
+\begin{document}
+
+\title{Home Middleman API}
+\author{Hubert Kasperek}
+\date{\today}
+
+\maketitle
+\tableofcontents
+
+\clearpage
+
+\fancyhead[L]{\slshape\nouppercase{}}
+
+\section{Introduction}
+
+\subsection{proxies}
+Home Middleman has 4 types of proxy:\\
+HTTP \textbf{/api/httpp}\\
+HTTPS \textbf{/api/httpps}\\
+TXT HTTP \textbf{/api/txt/httpp}\\
+TXT HTTPS \textbf{/api/txt/httpps}\\
+Http and https as the name suggests, just do http/https request and return the content of the html page, while the txt versions do the same, but instead of returning the html code, they return the text content of the website\\
+\textit{We can use proxies to use the internet more anonymously, more accessible to tools without page rendering options (txt proxy), or to collect html code or text from a website}
+\subsection{file storage}
+File listing \textbf{/api/files/list} allows you to list files in the \textit{upload/} folder (this folder is used to store various types of files uploaded by the user or returned by the API)\\
+File upload \textbf{/api/upload} allows you to upload files to the server\\
+File upload from link \textbf{/api/uploadLink} allows you to upload files to the server by providing a link to a website containing a file, e.g. \textit{https://example.com/image.jpg}\\
+File write \textbf{/api/write} this api allows you to save content directly to a file of any format\\
+File move \textbf{/api/files/mv} allows you to change the path to the file (only in the \textit{upload/} folder area) or to change the name/format of the file\\
+File delete \textbf{/api/files/del} allows you to delete files (only in the \textit{upload/} folder area)\\
+\textit{File storage is basically a cloud, we can store files on it that we can access from any device in the network. Since the same folder as file storage is used by some scrapers, we can also have access to the scrapped data from any device}
+\subsection{scraper}
+Link scraper \textbf{/api/scraper/links} allows you to save all links from the webpage in the \textit{websitelink.json} format\\
+Img scraper \textbf{/api/scraper/imgs/} allows you to save all the available images from the webpage in the same format as they are on the web page\\
+Cheerio html scraper \textbf{/api/scraper/cheeriohtml} allows you to save any page elements in the .html format, the syntax of the Cheerio library is used to select page elements\\
+\textit{Scraper can be useful for collecting specific data of interest to us from html files hosted by other servers, in routine they can be extremely useful, for example, to collect news from the world every 24 hours}
+\subsection{clipboard}
+Get the latest saved clip \textbf{/api/clip} this api function is designed to return text, which is then to be used by home middleman clients to save this text to the clipboard (at least that's how it works in the Python client and the front-end of the application)\\
+Save to clipboard \textbf{/api/clip/save} this api gives you the ability to save text to the clipboard for later use\\
+Clipboard history \textbf{/api/clip/history} this api allows you to see history of saved clips in clipboard, to clear history you can use:\\
+Clipboard erase \textbf{/api/clip/erase} this api clears all clipboard history including last saved text\\
+\textit{Clipboard fulfills its task fully only when hmm client has the option of saving the returned text to the clipboard}
+\subsection{notes}
+List notes \textbf{/api/notes} this api returns you saved notes\\
+Add note \textbf{/api/notes/add} this api allows you to add a note\\
+Remove note \textbf{/api/notes/del/} this api allows you to delete a note\\
+\textit{Notes require the following: title, note text, and date.}
+\subsection{tasks}
+Tasks listing \textbf{/api/task} this api returns the tasks saved on the server\\
+Tasks returns listing \textbf{/api/task/log/} this api returns the values returned by tasks, e.g. if the scrapper is running and returns text instead of e.g. images or json, then this value is saved as a log entry\\
+Count tasks \textbf{/api/task/count} this api returns the number of tasks on the server\\
+Get the log entry at the specified index \textbf{/api/task/log/:num} this api returns one log entry, 0 is the first index, and 'n' is the newest one\\
+Add new task \textbf{/api/task/add} this api allows you to add a new task\\
+Delete task \textbf{/api/task/del/} this api allows you to delete a task\\
+Start task \textbf{/api/task/run} allows you to start a task by specifying the name of the task you want to start\\
+Start time task \textbf{/api/task/time/run} allows you to start a task by specifying the name of the task you want to start, but this one, unlike the previous one, is executed only after the time you specified\\
+\textit{Tasks are saved specific configurations of the use of other api's, therefore only they can be used in the routine.}
+\subsection{routine}
+Get information about the routine \textbf{/api/task/interval} returns information about tasks that are added to the routine (they are performed regularly according to the given time interval)\\
+Add task to routine \textbf{/api/task/interval/add} allows you to add a task to the routine along with specifying how often (milliseconds by default, clients usually have it set to minutes) the given task should be performed\\
+Delete task from routine \textbf{/api/task/interval/kill/} allows you to stop the routine of a given task\\
+Count the tasks in the routine \textbf{/api/task/interval/count} this api function returns how many tasks run in intervals (routine)\\
+\textit{Routine allows you to perform tasks at intervals, so you don't have to manually perform a given activity from time to time - the software will do it for you!}
+
+\section{TODO}
+\subsection{technical informations}
+\subsection{examples}
+
+\end{document}
