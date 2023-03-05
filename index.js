@@ -218,6 +218,66 @@ app.get('/api/httpp/*', (req, res) => {
     });
 });
 
+app.post('/api/httpp/*', (req, res) => {
+    const rData = JSON.stringify(req.body);
+    const purl = url.parse("http://"+req.params[0]);
+    delete req.headers['user-agent'];
+    delete req.headers['host'];
+    const options = {
+        hostname: purl.host,
+        port: 80,
+        path: purl.path,
+        method: 'POST',
+        headers: {
+            ...req.headers,
+            'user-agent': userAgent,
+            'content-length': rData.length
+        }
+    }
+
+    const preq = http.request(options, (response) => {
+        let data = '';
+        response.on('data', (chunk) => {
+            data += chunk;
+        });
+        response.on("end", () => {
+            res.send(data);
+        });
+    });
+    preq.write(rData);
+    preq.end();
+});
+
+app.post('/api/httpps/*', (req, res) => {
+    const rData = JSON.stringify(req.body);
+    const purl = url.parse("https://"+req.params[0]);
+    delete req.headers['user-agent'];
+    delete req.headers['host'];
+    const options = {
+        hostname: purl.host,
+        port: 443,
+        path: purl.path,
+        method: 'POST',
+        headers: {
+            ...req.headers,
+            'user-agent': userAgent,
+            'content-length': rData.length
+        }
+    }
+
+    const preq = https.request(options, (response) => {
+        let data = '';
+        response.on('data', (chunk) => {
+            data += chunk;
+        });
+        response.on("end", () => {
+            res.send(data);
+        });
+    });
+    preq.write(rData);
+    preq.end();
+});
+
 app.get('/api/txt/httpp/*', (req, res) => {
     const npurl = "http://"+req.params[0];
     const purl = url.parse(npurl);
