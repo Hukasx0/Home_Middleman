@@ -57,6 +57,8 @@ function newTask(){
     const tName = document.getElementById('tName').value;
     const tType = document.getElementById('tType').value;
     let tData = document.getElementById('tData').value;
+    const pType = document.getElementById('pType').value;
+    const pData = document.getElementById('pData').value;
     if (tType=="cheerioc"){
         const tData2 = document.getElementById('tData2').value;
         tData += `&parse=${tData2}`;
@@ -64,7 +66,7 @@ function newTask(){
     fetch('/api/task/add', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `name=${encodeURIComponent(tName)}&type=${encodeURIComponent(tType)}&data=${encodeURIComponent(tData)}`
+        body: `name=${encodeURIComponent(tName)}&type=${encodeURIComponent(tType)}&data=${encodeURIComponent(tData)}&pType=${encodeURIComponent(pType)}&pData=${encodeURIComponent(pData)}`
     }).then(response => response.text())
     .then(result => {
         document.location.reload(true);

@@ -66,8 +66,10 @@
             <div class="col-auto">
                 <select class="form-select" id="tType">
                     <option value="https" selected>https</option>
+                    <option value="httpspost" selected>https post</option>
                     <option value="httpstxt">httpstxt</option>
                     <option value="http">http</option>
+                    <option value="httppost">http post</option>
                     <option value="httptxt">httptxt</option>
                     <option value="scrapurl">linkScrapper</option>
                     <option value="scrapimg">imageScrapper</option>
@@ -76,17 +78,31 @@
                   </select>
             </div>
             <div class="col-auto">
-                <input type="text" id="tData" class="form-control" placeholder="data">
-                <input type="text" id="tData2" class="form-control" placeholder="second data" hidden>
+                <input type="text" id="tData" class="form-control" placeholder="target">
+                <input type="text" id="tData2" class="form-control" placeholder="additional data" hidden>
+                <select class="form-select" id="pType" hidden>
+                  <option value="application/x-www-form-urlencoded" selected>application/x-www-form-urlencoded</option>
+                  <option value="application/json">application/json</option>
+                </select>
+                <input type="text" id="pData" class="form-control" placeholder="post data" hidden>
                 <script>
                   const sel = document.getElementById('tType')
                   const secin = document.getElementById('tData2');
+                  const ptype = document.getElementById('pType');
+                  const pdata = document.getElementById('pData');
                 
                   sel.addEventListener('change', () => {
                     if (sel.value === 'cheerioc') {
                       secin.hidden = false;
-                    } else {
+                    }
+                    else if (sel.value == "httpspost" || sel.value == "httppost"){
+                      ptype.hidden = false;
+                      pdata.hidden = false;
+                    }
+                    else {
                       secin.hidden = true;
+                      ptype.hidden = true;
+                      pdata.hidden = true;
                     }
                   });
                 </script>

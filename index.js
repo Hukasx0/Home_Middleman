@@ -51,13 +51,22 @@ function doTask(req){
     const tName = String(req.body.name);
     let a = gTasks.find(ob => ob.name == tName);
     let reqd = '';
+    let isPost = false;
     switch(a.type){
     case "http":
 	reqd = `http://${host}:${port}/api/httpp/${a.data}`;
 	break;
+    case "httppost":
+    reqd = `http://${host}:${port}/api/httpp/${a.data}`;
+    isPost = true;
+    break;
     case "https":
 	reqd = `http://${host}:${port}/api/httpps/${a.data}`;
 	break;
+    case "httpspost":
+    reqd = `http://${host}:${port}/api/httpps/${a.data}`;
+    isPost = true;
+    break;
     case "httptxt":
 	reqd = `http://${host}:${port}/api/txt/httpp/${a.data}`;
 	break;
@@ -79,6 +88,32 @@ function doTask(req){
     default:
 	reqd = `http://example.com`;
     }
+    if (isPost){
+        const rData = JSON.stringify(a.postData);
+        const purl = url.parse(reqd);
+        const options = {
+            host: purl.hostname,
+            port: port,
+            path: purl.path,
+            method: 'POST',
+            headers: {
+                'content-type': a.postType,
+                'content-length': rData.length
+            }
+        }
+        const preq = http.request(options, (response) => {
+            let data = '';
+            response.on('data', (chunk) => {
+                data += chunk;
+            });
+            response.on("end", () => {
+                gTasksLog.push(data);
+            });
+        });
+        preq.write(rData);
+        preq.end();
+    }
+    else{
     http.get(reqd, (response) => {
 	let data = '';
 	response.on('data', (chunk) => {
@@ -88,6 +123,7 @@ function doTask(req){
 	    gTasksLog.push(data);
 	});
     });
+    }
  }
 
 app.get('/', (req, res) => {
@@ -432,7 +468,9 @@ app.post('/api/task/add', (req, res) => {
     const tName = String(req.body.name);
     const tType = String(req.body.type);
     const tData = String(req.body.data);
-    gTasks.push({'name': tName, 'type': tType, 'data': tData });
+    const postType = String(req.body.pType);
+    const postData = String(req.body.pData);
+    gTasks.push({'name': tName, 'type': tType, 'data': tData, 'postType': postType, 'postData': postData });
     res.send(gTasks)
 });
 app.post('/api/task/run', (req, res) => {
