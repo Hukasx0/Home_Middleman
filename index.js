@@ -64,40 +64,59 @@ function dirRecursively(cdir, rPath = ''){
     return ret;
 }
 
+function getHour(){
+    const now = new Date();
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    return `${hours}_${minutes}`;
+}
+
+function getDate(){
+    const now = new Date();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const day = now.getDate().toString().padStart(2, '0');
+    const year = now.getFullYear().toString();
+    return `${day}_${month}_${year}`;
+}
+
 function doTask(req){
     const tName = String(req.body.name);
     let a = gTasks.find(ob => ob.name == tName);
     let reqd = '';
     let isPost = false;
+    const data = a.data.replace('~hour~',getHour()).replace("~date~",getDate()).replace(/~inc\$(\d+)~/, (m, p) => parseInt(p));
+    const postData = a.postData.replace('~hour~',getHour()).replace("~date~",getDate()).replace(/~inc\$(\d+)~/, (m, p) => parseInt(p));
+    a.data = a.data.replace(/~inc\$(\d+)~/, (m, p) => "~inc$"+(parseInt(p)+1)+"~");
+    a.postData = a.postData.replace(/~inc\$(\d+)~/, (m, p) => "~inc$"+(parseInt(p)+1)+"~");
     switch(a.type){
     case "http":
-	reqd = `http://${host}:${port}/api/httpp/${a.data}`;
+	reqd = `http://${host}:${port}/api/httpp/${data}`;
 	break;
     case "httppost":
-    reqd = `http://${host}:${port}/api/httpp/${a.data}`;
+    reqd = `http://${host}:${port}/api/httpp/${data}`;
     isPost = true;
     break;
     case "https":
-	reqd = `http://${host}:${port}/api/httpps/${a.data}`;
+	reqd = `http://${host}:${port}/api/httpps/${data}`;
 	break;
     case "httpspost":
-    reqd = `http://${host}:${port}/api/httpps/${a.data}`;
+    reqd = `http://${host}:${port}/api/httpps/${data}`;
     isPost = true;
     break;
     case "httptxt":
-	reqd = `http://${host}:${port}/api/txt/httpp/${a.data}`;
+	reqd = `http://${host}:${port}/api/txt/httpp/${data}`;
 	break;
     case "httpstxt":
-	reqd = `http://${host}:${port}/api/txt/httpps/${a.data}`;
+	reqd = `http://${host}:${port}/api/txt/httpps/${data}`;
 	break;
     case "scrapurl":
-    reqd = `http://${host}:${port}/api/scraper/links/?link=${a.data}`;
+    reqd = `http://${host}:${port}/api/scraper/links/?link=${data}`;
     break;
     case "scrapimg":
-    reqd = `http://${host}:${port}/api/scraper/imgs/?link=${a.data}`;
+    reqd = `http://${host}:${port}/api/scraper/imgs/?link=${data}`;
     break;
     case "cheerioc":
-    reqd = `http://${host}:${port}/api/scraper/cheeriohtml/?link=${a.data}`;
+    reqd = `http://${host}:${port}/api/scraper/cheeriohtml/?link=${data}`;
     break;
     case "cclip":
     reqd = `http://${host}:${port}/api/clip/erase`;
@@ -106,9 +125,9 @@ function doTask(req){
 	reqd = `http://example.com`;
     }
     if (isPost){
-        let rData = a.postData;
+        let rData = postData;
         if (a.postType != "application/json"){
-            rData = JSON.stringify(a.postData);
+            rData = JSON.stringify(postData);
         }
         const purl = url.parse(reqd);
         const options = {
@@ -465,8 +484,11 @@ app.get('/api/files/del', (req, res) => {
 });
 
 app.get('/api/files/mv', (req, res) => {
-    fs.rename(path.join(__dirname, `upload/${req.query.old}`), path.join(__dirname, `upload/${req.query.new}`), (err) => {
-	res.send(`${req.query.old} has been renamed to ${req.query.new}`);
+    const dirName = path.dirname(path.join(__dirname, `upload/${req.query.new}`));
+    fs.mkdir(dirName, { recursive: true }, (err) => {
+        fs.rename(path.join(__dirname, `upload/${req.query.old}`), path.join(__dirname, `upload/${req.query.new}`), (err) => {
+	        res.send(`${req.query.old} has been renamed to ${req.query.new}`);
+        });
     });
 });
 
@@ -604,9 +626,12 @@ app.get('/api/scraper/links/', (req, res) => {
                 const linkUrl = $(el).attr('href');
                 links.push({ 'link': linkUrl});
               });
+              const dirName = path.join(__dirname, 'upload/', req.query.path);
+              fs.mkdir(dirName, { recursive: true }, (err) => {
               fs.writeFile(path.join(__dirname, `upload/${req.query.path}${(req.query.link).replace(/[./]/g, '_')}.json`), JSON.stringify(links, null, 2), (erro) => {
                 res.send("Links scrapped successfully!");
             });
+        });
         });
         }
     });
@@ -633,6 +658,8 @@ app.get('/api/scraper/imgs/', (req, res) => {
             data += chunk;
         });
         response.on('end', () => {
+            const dirName = path.join(__dirname, 'upload/', req.query.path);
+            fs.mkdir(dirName, { recursive: true }, (err) => {
             const $ = cheerio.load(data);
             $('img').each((i, el) => {
                 let imgUrl = $(el).attr('src');
@@ -651,6 +678,7 @@ app.get('/api/scraper/imgs/', (req, res) => {
               });
         });
         }
+        )};
     });
     res.send("Images downloaded from url");
 });
@@ -682,9 +710,15 @@ app.get('/api/scraper/cheeriohtml', (req, res) => {
             $(elem).each((i, el) => {
                 rets += $(el).html()
               });
+              const dirName = path.dirname(path.join(__dirname, `upload/${req.query.path}`));
+              fs.mkdir(dirName, { recursive: true }, (err) => {
+              const dirName = path.join(__dirname, 'upload/', req.query.path);
+              fs.mkdir(dirName, { recursive: true }, (err) => {
               fs.writeFile(path.join(__dirname, `upload/${req.query.path}${(req.query.link).replace(/[./]/g, '_')}.html`), rets, (erro) => {
                 res.send(`${elem} scrapped successfully!`);
             });
+        });
+        });
         });
         }
     });
