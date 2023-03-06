@@ -61,7 +61,12 @@ function newTask(){
     const pData = document.getElementById('pData').value;
     if (tType=="cheerioc"){
         const tData2 = document.getElementById('tData2').value;
-        tData += `&parse=${tData2}`;
+        const sPath = document.getElementById('path').value;
+        tData += `&parse=${tData2}&path=${sPath}`;
+    }
+    else if (tType == "scrapurl" || tType == "scrapimg"){
+        const sPath = document.getElementById('path').value;
+        tData += `&path=${sPath}`;
     }
     fetch('/api/task/add', {
         method: 'POST',

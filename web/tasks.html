@@ -85,24 +85,38 @@
                   <option value="application/json">application/json</option>
                 </select>
                 <input type="text" id="pData" class="form-control" placeholder="post data" hidden>
+                <input type="text" id="path" class="form-control" placeholder="path on hmm" hidden>
                 <script>
                   const sel = document.getElementById('tType')
                   const secin = document.getElementById('tData2');
                   const ptype = document.getElementById('pType');
                   const pdata = document.getElementById('pData');
+                  const spath = document.getElementById('path');
                 
                   sel.addEventListener('change', () => {
                     if (sel.value === 'cheerioc') {
                       secin.hidden = false;
+                      ptype.hidden = true;
+                      pdata.hidden = true;
+                      spath.hidden = false;
+                    }
+                    else if (sel.value == "scrapurl" || sel.value == "scrapimg"){
+                      spath.hidden = false;
+                      secin.hidden = true;
+                      ptype.hidden = true;
+                      pdata.hidden = true;
                     }
                     else if (sel.value == "httpspost" || sel.value == "httppost"){
+                      secin.hidden = true;
                       ptype.hidden = false;
                       pdata.hidden = false;
+                      spath.hidden = true;
                     }
                     else {
                       secin.hidden = true;
                       ptype.hidden = true;
                       pdata.hidden = true;
+                      spath.hidden = true;
                     }
                   });
                 </script>
@@ -111,7 +125,9 @@
                 <button class="btn btn-outline-secondary" type="button" onclick="newTask()">add</button>  
             </div>  
         </div>
-        <a href="/api/task/log" target="_blank">tasks log</a>
+        <a href="/api/task/log" target="_blank">tasks log</a><br>
+        <a href="/api/task/log/toFile" >save log to file</a><br>
+        <a href="/api/task/log/clear">clear log</a>
         <h2>Task list</h2>
         <ul>
         <!-- tasks -->

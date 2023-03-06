@@ -62,6 +62,26 @@
             <div class="col-auto">
                 <input type="text" id="fLink" class="form-control" placeholder="https://example.com/image.png">
             </div>
+          </div>
+            <div class="row mx-auto">
+            <div class="col-auto">
+              <button class="btn btn-outline-secondary" type="button" onclick="guiFileChange()">move file</button> 
+            </div>
+            <div class="col-auto">
+              <select class="form-select" id="existingF">
+                <!-- files options -->
+              </select>
+              <script>
+                function guiFileChange(){
+                    const eFile = document.getElementById('existingF').value;
+                    const nFile = document.getElementById('newF').value;
+                    getRemove(`/api/files/mv?old=${eFile}&new=${nFile}`);
+                }
+              </script>
+            </div>
+            <div class="col-auto">
+              <input type="text" id="newF" class="form-control" placeholder="new filename/path/extension">
+          </div>
         </div>
         <h2>Uploaded files</h2>
         <ul>

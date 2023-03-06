@@ -48,6 +48,22 @@ function html2txt(html) {
     ${body}`;
 }
 
+function dirRecursively(cdir, rPath = ''){
+    const files = fs.readdirSync(cdir);
+    let ret = [];
+    files.forEach(file => {
+        const fPath = path.join(cdir, file);
+        const stat = fs.statSync(fPath);
+        if (stat.isDirectory()){
+            ret = ret.concat(dirRecursively(fPath, path.join(rPath, file)));
+        }
+        else{
+            ret.push(path.join(rPath, file).replace(/\\/g, '/'));
+        }
+    });
+    return ret;
+}
+
 function doTask(req){
     const tName = String(req.body.name);
     let a = gTasks.find(ob => ob.name == tName);
@@ -178,9 +194,12 @@ app.get('/clipboard', (req, res) => {
 app.get('/files', (req, res) => {
     fs.readFile('web/files.html', 'utf-8', (err, data) => {
         let filesL = '';
-        (fs.readdirSync("upload/")).forEach((fileName) => {
+        let filesOp = '';
+        dirRecursively("upload/").forEach((fileName) => {
             filesL += `<li><a href="api/download/${fileName}">${fileName}</a> <i class="bi bi-trash3" role="button" style="color:blueviolet;" onclick="getRemove('/api/files/del?path=${fileName}')"></i></li>`;
+            filesOp += `<option value="${fileName}">${fileName}</option>`;
         });
+        data = data.replace("<!-- files options -->",filesOp);
         res.send(data.replace('<!-- insert files -->',filesL));
     });
 });
@@ -426,15 +445,15 @@ app.post('/api/uploadLink', (req, res) => {
     }
 });
 
-app.get('/api/download/:fileName', (req, res) => {
-    const fileName = req.params.fileName;
+app.get('/api/download/*', (req, res) => {
+    const fileName = req.params[0];
     res.sendFile(path.join(__dirname, 'upload/'+fileName));
 });
 
 app.get('/api/files/list', (req, res) => {
     let filesL = '';
-    (fs.readdirSync("upload/")).forEach((fileName) => {
-        filesL += `${fileName} `;
+    dirRecursively("upload/").forEach((filename) => {
+        filesL += `${filename} `;
     });
     res.send(filesL);
 });
@@ -501,6 +520,17 @@ app.get('/api/task', (req, res) => {
 
 app.get('/api/task/log/', (req, res) => {
     res.send({'return': gTasksLog});
+});
+
+app.get('/api/task/log/toFile', (req, res) => {
+    fs.writeFile(path.join(__dirname, 'upload/log.json'), JSON.stringify(gTasksLog, null, 2), (erro) => {
+	    res.send("Log saved to file successfully!");
+	});
+});
+
+app.get('/api/task/log/clear', (req, res) => {
+    gTasksLog = [];
+    res.send("Tasks log cleared!");
 });
 
 app.get('/api/task/count', (req, res) => {
@@ -574,7 +604,7 @@ app.get('/api/scraper/links/', (req, res) => {
                 const linkUrl = $(el).attr('href');
                 links.push({ 'link': linkUrl});
               });
-              fs.writeFile(path.join(__dirname, `upload/${(req.query.link).replace(/[./]/g, '_')}.json`), JSON.stringify(links, null, 2), (erro) => {
+              fs.writeFile(path.join(__dirname, `upload/${req.query.path}${(req.query.link).replace(/[./]/g, '_')}.json`), JSON.stringify(links, null, 2), (erro) => {
                 res.send("Links scrapped successfully!");
             });
         });
@@ -613,7 +643,7 @@ app.get('/api/scraper/imgs/', (req, res) => {
                     imgUrl = url.resolve(target,"/", imgUrl);
                 }
                 const filename = path.basename(imgUrl);
-                const filepath = path.join(__dirname, 'upload/', filename);
+                const filepath = path.join(__dirname, `upload/${req.query.path}`, filename);
                 https.get(imgUrl, (res) => {
                     const fileStream = fs.createWriteStream(filepath);
                     res.pipe(fileStream);
@@ -652,7 +682,7 @@ app.get('/api/scraper/cheeriohtml', (req, res) => {
             $(elem).each((i, el) => {
                 rets += $(el).html()
               });
-              fs.writeFile(path.join(__dirname, `upload/${(req.query.link).replace(/[./]/g, '_')}.html`), rets, (erro) => {
+              fs.writeFile(path.join(__dirname, `upload/${req.query.path}${(req.query.link).replace(/[./]/g, '_')}.html`), rets, (erro) => {
                 res.send(`${elem} scrapped successfully!`);
             });
         });
