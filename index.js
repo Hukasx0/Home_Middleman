@@ -9,6 +9,7 @@ const bodyParser = require('body-parser');
 const cheerio = require('cheerio');
 const app = express();
 
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const host = 'localhost';
@@ -89,7 +90,10 @@ function doTask(req){
 	reqd = `http://example.com`;
     }
     if (isPost){
-        const rData = JSON.stringify(a.postData);
+        let rData = a.postData;
+        if (a.postType != "application/json"){
+            rData = JSON.stringify(a.postData);
+        }
         const purl = url.parse(reqd);
         const options = {
             host: purl.hostname,
