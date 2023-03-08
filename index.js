@@ -251,8 +251,6 @@ app.get('/routine', (req, res) => {
     });
 });
 
-
-
 app.get('/css/main.css', (req, res) => {
     fs.readFile('web/css/main.css', 'utf-8', (err, data) => {
         res.writeHead(200, { 'Content-Type': 'text/css'});
@@ -318,6 +316,15 @@ app.get('/api/cfg/export', (req, res) => {
     fs.writeFile(path.join(__dirname, `upload/`, fName), JSON.stringify(toJson, null, 2), (erro) => {
 	res.send(`Config exported successfully to ${fName}`);
     });
+});
+
+app.get('/api/restart', (req, res) => {
+    gTasks = [];
+    gTasksLog = [];
+    gIntervals = [];
+    gClip = [];
+    gNotes = [];
+    res.send("Home middleman has been restarted");
 });
 
 app.get('/api/httpp/*', (req, res) => {

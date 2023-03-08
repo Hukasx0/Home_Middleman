@@ -10,7 +10,10 @@ def tasks(i):
     if len(i) <= 1:
         print (requests.get(hmmAddr+"/api/task").text)
     elif i[1] == "add":
-        print (requests.post(hmmAddr+"/api/task/add", data={"name": i[2], "type": i[3], "data": i[4], "pType": i[5], "pData": i[6]}).text)
+        if i[2] == "post":
+            print (requests.post(hmmAddr+"/api/task/add", data={"name": i[3], "type": i[4], "data": i[5], "pType": i[6], "pData": i[7]}).text)
+        elif i[2] == "get":
+            print (requests.post(hmmAddr+"/api/task/add", data={"name": i[3], "type": i[4], "data": i[5]}))
     elif i[1] == "run":
         print (requests.post(hmmAddr+"/api/task/run", data={"name": i[2]}).text)
     elif i[1] == "del":
@@ -19,7 +22,7 @@ def tasks(i):
         with open("tasks.json", 'wb') as file:
             file.write(requests.get(hmmAddr+"/api/task/log").content)
     elif i[1] == "help":
-        print ("tasks\ntasks add <taskname> <http/https/httptxt/httpstxt/> <target> <postType> <postData>\ntasks run <taskname>\ntasks del <taskname>\ntasks help")
+        print ("tasks\ntasks add get <taskname> <http/https/httptxt/httpstxt/scrapurl/scrapimg/cheerioc/cclip> <target>\ntasks add post <taskname> <httppost/httpspost> <target> <postType> <postData>\ntasks run <taskname>\ntasks del <taskname>\ntasks help")
 
 def routine(i):
     if len(i) <= 1:
@@ -98,12 +101,17 @@ def config(i):
 		print (requests.get(hmmAddr+"/api/cfg/export").text)
 	elif i[1] == "import":
 		print(requests.get(hmmAddr+"/api/cfg/import?path="+i[2]).text)
+
+def restartm(i):
+	i = input("Are you sure? YES/NO ")
+	if i=="YES":
+		print(requests.get(hmmAddr+"/api/restart").text)
     
 def ex(i):
     quit()
 
 def helpm(i):
-    print ("Home Middleman Client\navailable commands:\nhelp\ntasks\nroutine\nclip\nnotes\nupload\ndownload\nscrapper\nproxy\nfiles\nconfig\nexit")
+    print ("Home Middleman Client\navailable commands:\nhelp\ntasks\nroutine\nclip\nnotes\nupload\ndownload\nscrapper\nproxy\nfiles\nconfig\nrestart\nexit")
     
 def httpp():
     return "/api/httpp/"
@@ -138,6 +146,7 @@ apis = {
     "proxy": proxy,
     "files": files,
     "config": config,
+    "restart": restartm,
     "help": helpm,
     "exit": ex
 }
@@ -158,7 +167,7 @@ def splitWithoutQuo(txt, delimiter=' '):
     return result
 
 def autoComplete(txt, state):
-    options = ['tasks', 'routine', 'clip', 'notes', 'upload', 'download', 'scrapper','proxy','files','help','exit', 'add','http','httptxt','https','httpstxt','del','run','log','link','erase','links','imgs','cheerio','mv','write', 'config', 'import', 'export']
+    options = ['tasks', 'routine', 'clip', 'notes', 'upload', 'download', 'scrapper','proxy','files','help','exit', 'add','http','httptxt','https','httpstxt','del','run','log','link','erase','links','imgs','cheerio','mv','write', 'config', 'import', 'export', 'restart','get','post']
     matches = [option for option in options if option.startswith(txt)]
     try:
         return matches[state]
