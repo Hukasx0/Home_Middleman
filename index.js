@@ -269,6 +269,57 @@ app.get('/js/main.js', (req, res) => {
     });
 });
 
+app.get('/api/cfg/import', (req, res) => {
+    fs.readFile(path.join(__dirname, 'upload/', req.query.path), (err, jsoncfg) => {
+    jsoncfg = JSON.parse(jsoncfg);
+    jsoncfg.forEach((i) => {
+	switch (i.type){
+	case "task":
+	    gTasks.push({
+		'name': i.data.name,
+		'type': i.data.type,
+		'data': i.data.data,
+		'postType': i.data.pType,
+		'postData': i.data.pData
+	    });
+	    break;
+	case "routine":
+	    gIntervals.push({
+		'name': i.data.name,
+		'id': (setInterval(() => {
+		    doTask(req);
+		},i.data.time)),
+		'time': i.data.time
+	    });
+	default:
+	    break;
+	}
+    });
+    });
+    	res.send(`Config ${req.query.path} loaded`);
+});
+
+app.get('/api/cfg/export', (req, res) => {
+    let toJson = [];
+    gTasks.forEach((e) => {
+	toJson.push({
+	    'type': 'task',
+	    'data': e
+	});
+    });
+    gIntervals.forEach((e) => {
+	toJson.push({
+	    'type': 'routine',
+	    'data': {'name': e.name,
+		     'time': e.time}
+	});
+    });
+    const fName = `config-${getHour()}-${getDate()}.json`;
+    fs.writeFile(path.join(__dirname, `upload/`, fName), JSON.stringify(toJson, null, 2), (erro) => {
+	res.send(`Config exported successfully to ${fName}`);
+    });
+});
+
 app.get('/api/httpp/*', (req, res) => {
     const npurl = "http://"+req.params[0];
     const purl = url.parse(npurl);

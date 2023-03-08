@@ -10,7 +10,7 @@ def tasks(i):
     if len(i) <= 1:
         print (requests.get(hmmAddr+"/api/task").text)
     elif i[1] == "add":
-        print (requests.post(hmmAddr+"/api/task/add", data={"name": i[2], "type": i[3], "data": i[4]}).text)
+        print (requests.post(hmmAddr+"/api/task/add", data={"name": i[2], "type": i[3], "data": i[4], "pType": i[5], "pData": i[6]}).text)
     elif i[1] == "run":
         print (requests.post(hmmAddr+"/api/task/run", data={"name": i[2]}).text)
     elif i[1] == "del":
@@ -19,7 +19,7 @@ def tasks(i):
         with open("tasks.json", 'wb') as file:
             file.write(requests.get(hmmAddr+"/api/task/log").content)
     elif i[1] == "help":
-        print ("tasks\ntasks add <taskname> <http/https/httptxt/httpstxt/> <target>\ntasks run <taskname>\ntasks del <taskname>\ntasks help")
+        print ("tasks\ntasks add <taskname> <http/https/httptxt/httpstxt/> <target> <postType> <postData>\ntasks run <taskname>\ntasks del <taskname>\ntasks help")
 
 def routine(i):
     if len(i) <= 1:
@@ -71,13 +71,13 @@ def download(i):
                 
 def scrapper(i):
     if i[1] == "links":
-        print (requests.get(hmmAddr+"/api/scraper/links?link="+i[2]).text)
+        print (requests.get(hmmAddr+"/api/scraper/links?link="+i[2]).text+"&path="+i[3])
     elif i[1] == "imgs":
-        print (requests.get(hmmAddr+"/api/scraper/imgs?link="+i[2]).text)
+        print (requests.get(hmmAddr+"/api/scraper/imgs?link="+i[2]).text+"&path="+i[3])
     elif i[1] == "cheerio":
-        print (requests.get(hmmAddr+"/api/scraper/cheeriohtml?link="+i[2]+"&parse="+i[3]).text)
+        print (requests.get(hmmAddr+"/api/scraper/cheeriohtml?link="+i[2]+"&parse="+i[3]+"&path="+i[4]).text)
     elif i[1] == "help":
-        print("scrapper links <https://example.com>\nscrapper imgs <https://example.com>\nscrapper cheerio <https://example.com> <what you want to scrap, example: div.article>")
+        print("scrapper links <https://example.com> <serverPath>\nscrapper imgs <https://example.com> <serverPath>\nscrapper cheerio <https://example.com> <what you want to scrap, example: div.article> <serverPath>")
         
 def files(i):
     if len(i)<=1:
@@ -90,12 +90,20 @@ def files(i):
         print (requests.post(hmmAddr+"/api/write/", data={'path': i[2], 'name': i[3], 'data': i[4]}).text)
     elif i[1] == "help":
         print ("files\nfiles del <filename>\nfiles mv <oldname> <newname>\nfiles write <filepath> <filename> <filedata>")
+
+def config(i):
+	if len(i)<=1  or i[1] == "help":
+		print("config import <path>\nconfig export")
+	elif i[1] == "export":
+		print (requests.get(hmmAddr+"/api/cfg/export").text)
+	elif i[1] == "import":
+		print(requests.get(hmmAddr+"/api/cfg/import?path="+i[2]).text)
     
 def ex(i):
     quit()
 
 def helpm(i):
-    print ("Home Middleman Client\navailable commands:\nhelp\ntasks\nroutine\nclip\nnotes\nupload\ndownload\nscrapper\nproxy\nfiles\nexit")
+    print ("Home Middleman Client\navailable commands:\nhelp\ntasks\nroutine\nclip\nnotes\nupload\ndownload\nscrapper\nproxy\nfiles\nconfig\nexit")
     
 def httpp():
     return "/api/httpp/"
@@ -129,6 +137,7 @@ apis = {
     "scrapper": scrapper,
     "proxy": proxy,
     "files": files,
+    "config": config,
     "help": helpm,
     "exit": ex
 }
@@ -149,7 +158,7 @@ def splitWithoutQuo(txt, delimiter=' '):
     return result
 
 def autoComplete(txt, state):
-    options = ['tasks', 'routine', 'clip', 'notes', 'upload', 'download', 'scrapper','proxy','files','help','exit', 'add','http','httptxt','https','httpstxt','del','run','log','link','erase','links','imgs','cheerio','mv','write']
+    options = ['tasks', 'routine', 'clip', 'notes', 'upload', 'download', 'scrapper','proxy','files','help','exit', 'add','http','httptxt','https','httpstxt','del','run','log','link','erase','links','imgs','cheerio','mv','write', 'config', 'import', 'export']
     matches = [option for option in options if option.startswith(txt)]
     try:
         return matches[state]
