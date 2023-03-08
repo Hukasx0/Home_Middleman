@@ -22,7 +22,7 @@ def tasks(i):
         with open("tasks.json", 'wb') as file:
             file.write(requests.get(hmmAddr+"/api/task/log").content)
     elif i[1] == "help":
-        print ("tasks\ntasks add get <taskname> <http/https/httptxt/httpstxt/scrapurl/scrapimg/cheerioc/cclip> <target>\ntasks add post <taskname> <httppost/httpspost> <target> <postType> <postData>\ntasks run <taskname>\ntasks del <taskname>\ntasks help")
+        print ("tasks\ntasks add get <taskname> <http/https/httptxt/httpstxt/scrapurl/scrapimg/cheerioc/cclip> <target>\ntasks add post <taskname> <httppost/httpspost> <target> <application/x-www-form-urlencoded OR application/json> <postData>\ntasks run <taskname>\ntasks del <taskname>\ntasks help")
 
 def routine(i):
     if len(i) <= 1:

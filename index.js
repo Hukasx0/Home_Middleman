@@ -277,15 +277,17 @@ app.get('/api/cfg/import', (req, res) => {
 		'name': i.data.name,
 		'type': i.data.type,
 		'data': i.data.data,
-		'postType': i.data.pType,
-		'postData': i.data.pData
+		'postType': i.data.postType,
+		'postData': i.data.postData
 	    });
 	    break;
 	case "routine":
 	    gIntervals.push({
 		'name': i.data.name,
 		'id': (setInterval(() => {
-		    doTask(req);
+            let r = req;
+            r.body.name = i.data.name;
+		    doTask(r);
 		},i.data.time)),
 		'time': i.data.time
 	    });
