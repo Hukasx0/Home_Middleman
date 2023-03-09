@@ -84,10 +84,11 @@ function doTask(req){
     let a = gTasks.find(ob => ob.name == tName);
     let reqd = '';
     let isPost = false;
-    const data = a.data.replace('~hour~',getHour()).replace("~date~",getDate()).replace(/~inc\$(\d+)~/, (m, p) => parseInt(p));
-    const postData = a.postData.replace('~hour~',getHour()).replace("~date~",getDate()).replace(/~inc\$(\d+)~/, (m, p) => parseInt(p));
-    a.data = a.data.replace(/~inc\$(\d+)~/, (m, p) => "~inc$"+(parseInt(p)+1)+"~");
-    a.postData = a.postData.replace(/~inc\$(\d+)~/, (m, p) => "~inc$"+(parseInt(p)+1)+"~");
+    const data = a.data.replace('~hour~',getHour()).replace("~date~",getDate()).replace(/~inc\$(\d+)~/, (m, p) => parseInt(p)).replace(/~{([^}]*)}~/g, (match, contents) => {return contents.split(' ')[0]});
+    console.log(data);
+    const postData = a.postData.replace('~hour~',getHour()).replace("~date~",getDate()).replace(/~inc\$(\d+)~/, (m, p) => parseInt(p)).replace(/~{([^}]*)}~/g, (match, contents) => {return contents.split(' ')[0]});
+    a.data = a.data.replace(/~inc\$(\d+)~/, (m, p) => "~inc$"+(parseInt(p)+1)+"~").replace(/~{([^}]*)}~/g, (match, contents) => {return '~{' + (contents.split(' ')).slice(1).join(' ') + '}~'});
+    a.postData = a.postData.replace(/~inc\$(\d+)~/, (m, p) => "~inc$"+(parseInt(p)+1)+"~").replace(/~{([^}]*)}~/g, (match, contents) => {return '~{' + (contents.split(' ')).slice(1).join(' ') + '}~'});
     switch(a.type){
     case "http":
 	reqd = `http://${host}:${port}/api/httpp/${data}`;

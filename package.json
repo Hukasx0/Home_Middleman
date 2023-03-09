@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Hubert Hukasx0 Kasperek",
-  "license": "GPL-3.0-or-later",
+  "license": "MIT",
   "dependencies": {
     "cheerio": "^1.0.0-rc.12",
     "express": "^4.18.2",
