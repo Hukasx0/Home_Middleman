@@ -75,6 +75,13 @@
                     <option value="scrapimg">imageScrapper</option>
                     <option value="cheerioc">cheerio custom scrapper</option>
                     <option value="cclip">clear clipboard</option>
+                    <option value="delfile">delete file</option>
+                    <option value="mvfile">move file</option>
+                    <option value="uploadlink">upload from link</option>
+                    <option value="saveclip">save to clipboard</option>
+                    <option value="logfile">save log to file</option>
+                    <option value="cfgimport">import configuration from file</option>
+                    <option value="cfgexport">export configuration to file</option>
                   </select>
             </div>
             <div class="col-auto">
@@ -110,6 +117,12 @@
                       secin.hidden = true;
                       ptype.hidden = false;
                       pdata.hidden = false;
+                      spath.hidden = true;
+                    }
+                    else if (sel.value == "mvfile"){
+                      secin.hidden = false;
+                      ptype.hidden = true;
+                      pdata.hidden = true;
                       spath.hidden = true;
                     }
                     else {

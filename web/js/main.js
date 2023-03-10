@@ -57,16 +57,33 @@ function newTask(){
     const tName = document.getElementById('tName').value;
     const tType = document.getElementById('tType').value;
     let tData = document.getElementById('tData').value;
-    const pType = document.getElementById('pType').value;
-    const pData = document.getElementById('pData').value;
-    if (tType=="cheerioc"){
-        const tData2 = document.getElementById('tData2').value;
-        const sPath = document.getElementById('path').value;
-        tData += `&parse=${tData2}&path=${sPath}`;
-    }
-    else if (tType == "scrapurl" || tType == "scrapimg"){
-        const sPath = document.getElementById('path').value;
-        tData += `&path=${sPath}`;
+    let pType = document.getElementById('pType').value;
+    let pData = document.getElementById('pData').value;
+    const tData2 = document.getElementById('tData2').value;
+    const sPath = document.getElementById('path').value;
+    switch (tType) {
+        case "cheerioc":
+            tData += `&parse=${tData2}&path=${sPath}`;
+            break;
+        case "scrapurl":
+            tData += `&path=${sPath}`;
+            break;
+        case "scrapimg":
+            tData += `&path=${sPath}`;
+            break;
+        case "mvfile":
+            tData = `?old=${tData}&new=${tData2}`;
+            break;
+        case "uploadlink":
+            pType = "application/x-www-form-urlencoded"
+            pData = `link=${tData}`
+            break;
+        case "saveclip":
+            pType = "application/x-www-form-urlencoded"
+            pData = `data=${tData}`
+            break;
+        default:
+            break;
     }
     fetch('/api/task/add', {
         method: 'POST',

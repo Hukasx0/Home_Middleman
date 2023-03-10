@@ -85,51 +85,70 @@ function doTask(req){
     let reqd = '';
     let isPost = false;
     const data = a.data.replace('~hour~',getHour()).replace("~date~",getDate()).replace(/~inc\$(\d+)~/, (m, p) => parseInt(p)).replace(/~{([^}]*)}~/g, (match, contents) => {return contents.split(' ')[0]});
-    console.log(data);
     const postData = a.postData.replace('~hour~',getHour()).replace("~date~",getDate()).replace(/~inc\$(\d+)~/, (m, p) => parseInt(p)).replace(/~{([^}]*)}~/g, (match, contents) => {return contents.split(' ')[0]});
     a.data = a.data.replace(/~inc\$(\d+)~/, (m, p) => "~inc$"+(parseInt(p)+1)+"~").replace(/~{([^}]*)}~/g, (match, contents) => {return '~{' + (contents.split(' ')).slice(1).join(' ') + '}~'});
     a.postData = a.postData.replace(/~inc\$(\d+)~/, (m, p) => "~inc$"+(parseInt(p)+1)+"~").replace(/~{([^}]*)}~/g, (match, contents) => {return '~{' + (contents.split(' ')).slice(1).join(' ') + '}~'});
     switch(a.type){
     case "http":
-	reqd = `http://${host}:${port}/api/httpp/${data}`;
-	break;
+	    reqd = `http://${host}:${port}/api/httpp/${data}`;
+	    break;
     case "httppost":
-    reqd = `http://${host}:${port}/api/httpp/${data}`;
-    isPost = true;
-    break;
+        reqd = `http://${host}:${port}/api/httpp/${data}`;
+        isPost = true;
+        break;
     case "https":
-	reqd = `http://${host}:${port}/api/httpps/${data}`;
-	break;
+	    reqd = `http://${host}:${port}/api/httpps/${data}`;
+	    break;
     case "httpspost":
-    reqd = `http://${host}:${port}/api/httpps/${data}`;
-    isPost = true;
-    break;
+        reqd = `http://${host}:${port}/api/httpps/${data}`;
+        isPost = true;
+        break;
     case "httptxt":
-	reqd = `http://${host}:${port}/api/txt/httpp/${data}`;
-	break;
+	    reqd = `http://${host}:${port}/api/txt/httpp/${data}`;
+	    break;
     case "httpstxt":
-	reqd = `http://${host}:${port}/api/txt/httpps/${data}`;
-	break;
+	    reqd = `http://${host}:${port}/api/txt/httpps/${data}`;
+	    break;
     case "scrapurl":
-    reqd = `http://${host}:${port}/api/scraper/links/?link=${data}`;
-    break;
+        reqd = `http://${host}:${port}/api/scraper/links/?link=${data}`;
+        break;
     case "scrapimg":
-    reqd = `http://${host}:${port}/api/scraper/imgs/?link=${data}`;
-    break;
+        reqd = `http://${host}:${port}/api/scraper/imgs/?link=${data}`;
+        break;
     case "cheerioc":
-    reqd = `http://${host}:${port}/api/scraper/cheeriohtml/?link=${data}`;
-    break;
+        reqd = `http://${host}:${port}/api/scraper/cheeriohtml/?link=${data}`;
+        break;
     case "cclip":
-    reqd = `http://${host}:${port}/api/clip/erase`;
-    break;
+        reqd = `http://${host}:${port}/api/clip/erase`;
+        break;
+    case "delfile":
+        reqd = `http://${host}:${port}/api/files/del?path=${data}`;
+        break;
+    case "mvfile":
+        reqd = `http://${host}:${port}/api/files/mv${data}`;
+        break;
+    case "uploadlink":
+        reqd = `http://${host}:${port}/api/uploadLink`;
+        isPost = true;
+        break;
+    case "saveclip":
+        reqd = `http://${host}:${port}/api/clip/save`;
+        isPost = true;
+        break;
+    case "logfile":
+        reqd = `http://${host}:${port}/api/task/log/toFile?name=${data}`;
+        break;
+    case "cfgimport":
+        reqd = `http://${host}:${port}/api/cfg/import?path=${data}`;
+        break;
+    case "cfgexport":
+        reqd = `http://${host}:${port}/api/cfg/export?name=${data}`;
+        break;
     default:
 	reqd = `http://example.com`;
     }
     if (isPost){
         let rData = postData;
-        if (a.postType != "application/json"){
-            rData = JSON.stringify(postData);
-        }
         const purl = url.parse(reqd);
         const options = {
             host: purl.hostname,
@@ -315,7 +334,7 @@ app.get('/api/cfg/export', (req, res) => {
 		     'time': e.time}
 	});
     });
-    const fName = `config-${getHour()}-${getDate()}.json`;
+    const fName = `${req.query.name}.json`;
     fs.writeFile(path.join(__dirname, `upload/`, fName), JSON.stringify(toJson, null, 2), (erro) => {
 	res.send(`Config exported successfully to ${fName}`);
     });
@@ -606,7 +625,7 @@ app.get('/api/task/log/', (req, res) => {
 });
 
 app.get('/api/task/log/toFile', (req, res) => {
-    fs.writeFile(path.join(__dirname, 'upload/log.json'), JSON.stringify(gTasksLog, null, 2), (erro) => {
+    fs.writeFile(path.join(__dirname, `upload/${req.query.name}}.json`), JSON.stringify(gTasksLog, null, 2), (erro) => {
 	    res.send("Log saved to file successfully!");
 	});
 });
