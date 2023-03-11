@@ -82,6 +82,13 @@ function newTask(){
             pType = "application/x-www-form-urlencoded"
             pData = `data=${tData}`
             break;
+        case "consolepost":
+            pType = "application/x-www-form-urlencoded"
+            pData = `text=${tData}`
+            break;
+        case "sendfile":
+            tData = `?target=${tData}&path=${tData2}`;
+            break;
         default:
             break;
     }

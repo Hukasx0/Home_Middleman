@@ -144,6 +144,16 @@ function doTask(req){
     case "cfgexport":
         reqd = `http://${host}:${port}/api/cfg/export?name=${data}`;
         break;
+    case "consoleget":
+        reqd = `http://${host}:${port}/api/console?text=${data}`;
+        break;
+    case "consolepost":
+        reqd = `http://${host}:${port}/api/console`;
+        isPost = true;
+        break;
+    case "sendfile":
+        reqd = `http://${host}:${port}/api/files/send${data}`;
+        break;
     default:
 	reqd = `http://example.com`;
     }
@@ -572,6 +582,28 @@ app.get('/api/files/mv', (req, res) => {
     });
 });
 
+app.get('/api/files/send', (req, res) => {
+    const file = fs.readFileSync(path.join(__dirname, 'upload/', req.query.path));
+    const options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'text/plain',
+            'Content-Length': file.length
+        }
+    };
+    const preq = http.request(req.query.target, options, (pres) => {
+        let data = '';
+        pres.on('data', (chunk) => {
+            data += chunk;
+          });
+        pres.on('end', () => {
+            res.send(data);
+          });
+    });
+    preq.write(file);
+    preq.end();
+});
+
 app.post('/api/write/', (req, res) => {
     const savePath = String(req.body.path);
     const fileName = String(req.body.name);
@@ -839,6 +871,16 @@ app.get('/api/notes/del/:name', (req, res) => {
     const noteName = String(req.params.name);
     gNotes = gNotes.filter(ob => ob.name !== noteName);
     res.send(`${noteName} removed`);
+});
+
+app.get('/api/console', (req, res) => {
+    console.log(req.query.text);
+    res.send(`${req.query.text} was printed in the server console`);
+});
+
+app.post('/api/console', (req, res) => {
+    console.log(req.body.text);
+    res.send(`${req.body.text} was printed in the server console`);
 });
 
 app.listen(port, () => {

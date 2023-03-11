@@ -77,11 +77,14 @@
                     <option value="cclip">clear clipboard</option>
                     <option value="delfile">delete file</option>
                     <option value="mvfile">move file</option>
+                    <option value="sendfile">send file</option>
                     <option value="uploadlink">upload from link</option>
                     <option value="saveclip">save to clipboard</option>
                     <option value="logfile">save log to file</option>
                     <option value="cfgimport">import configuration from file</option>
                     <option value="cfgexport">export configuration to file</option>
+                    <option value="consoleget">print text in server console (GET)</option>
+                    <option value="consolepost">print text in server console (POST)</option>
                   </select>
             </div>
             <div class="col-auto">
@@ -119,7 +122,7 @@
                       pdata.hidden = false;
                       spath.hidden = true;
                     }
-                    else if (sel.value == "mvfile"){
+                    else if (sel.value == "mvfile" || sel.value == "sendfile"){
                       secin.hidden = false;
                       ptype.hidden = true;
                       pdata.hidden = true;
