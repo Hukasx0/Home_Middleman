@@ -30,6 +30,13 @@ let gTasksLog = [];
 let gIntervals = [];
 let gClip = [];
 let gNotes = [];
+let {uFiles, uSize} = getFilesAndSize();
+
+setInterval(() => {
+    const gfas = getFilesAndSize();
+    uFiles = gfas.uFiles;
+    uSize = gfas.uSize;
+  }, 300000);
 
 function html2txt(html) {
     const $ = cheerio.load(html);
@@ -82,6 +89,25 @@ function getDate(){
     const day = now.getDate().toString().padStart(2, '0');
     const year = now.getFullYear().toString();
     return `${day}_${month}_${year}`;
+}
+
+function getFilesAndSize(){
+    let fnum = 0;
+    let fSize = 0;
+    const files = fs.readdirSync(path.join(__dirname, 'upload/'));
+    files.forEach((f) => {
+        const filePath = path.join(__dirname, 'upload/', f);
+        const stats = fs.statSync(filePath);
+        if (stats.isFile()){
+            fnum++;
+            fSize += stats.size;
+        }
+    });
+    const fSizeMB = (fSize / (1024 * 1024)).toFixed(2);
+    return {
+        uFiles: fnum,
+        uSize: fSizeMB
+    };
 }
 
 function doTask(req){
@@ -222,6 +248,15 @@ function doTask(req){
 
 app.get('/', (req, res) => {
     fs.readFile('web/index.html', 'utf-8', (err, data) => {
+        data = data.replace("<!-- additional info -->", `
+        <h3 class="lead">saved tasks: <b>${gTasks.length}</b></h3>
+        <h3 class="lead">tasks running in routine <b>${gIntervals.length}</b></h3>
+        <h3 class="lead">executed tasks: <b>${gTasksLog.length}</b></h3>
+        <h3 class="lead">snippets in clipboard: <b>${gClip.length}</b></h3>
+        <h3 class="lead">saved notes: <b>${gNotes.length}</b></h3>
+        <h3 class="lead">'upload/' folder has <b>${uFiles}</b> files which together use <b>${uSize} MB</b> of memory</h3>
+        <h3 class="lead">server is currently using <b>${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)} MB</b> ram</h3>
+        `);
         res.send(data);
     });
 });
@@ -230,6 +265,18 @@ app.get('/proxy', (req, res) => {
     fs.readFile('web/proxy.html', 'utf-8', (err, data) => {
         res.send(data);
     });
+});
+
+app.get('/get/pythonClient', (req, res) => {
+    res.download(path.join(__dirname, 'client/hmmClient.py'));
+});
+
+app.get('/get/pdfDocs', (req, res) => {
+    res.download(path.join(__dirname, 'docs/HomeMiddleman_api.pdf'));
+});
+
+app.get('/get/texDocs', (req, res) => {
+    res.download(path.join(__dirname, 'docs/HomeMiddleman_api.tex'));
 });
 
 app.get('/notes', (req, res) => {
