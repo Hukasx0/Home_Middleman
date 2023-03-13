@@ -22,13 +22,5 @@ npm install cheerio
 node index.js
 ```
 - access the web application via a web browser (default: http://localhost:1337), or via a python script located in the 'client/' folder
-- ps: if you want to access the web application from any device in the network, change the 'index.js' file code from:
-```
-const host = 'localhost';
-```
-to:
-```
-const host = '0.0.0.0';
-```
 ## License
 Home Middleman is open-source software licensed under the MIT License. Feel free to use it, modify it, and share it with others.

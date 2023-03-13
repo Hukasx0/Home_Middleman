@@ -54,9 +54,9 @@ function guiLinkUpload(){
 }
 
 function newTask(){
-    const tName = document.getElementById('tName').value;
+    const tName = encodeURIComponent(document.getElementById('tName').value);
     const tType = document.getElementById('tType').value;
-    let tData = document.getElementById('tData').value;
+    let tData = encodeURIComponent(document.getElementById('tData').value);
     let pType = document.getElementById('pType').value;
     let pData = document.getElementById('pData').value;
     const tData2 = document.getElementById('tData2').value;
