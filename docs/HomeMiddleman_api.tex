@@ -35,6 +35,7 @@ File upload from link \textbf{/api/uploadLink} allows you to upload files to the
 File write \textbf{/api/write} this api allows you to save content directly to a file of any format\\
 File move \textbf{/api/files/mv} allows you to change the path to the file (only in the \textit{upload/} folder area) or to change the name/format of the file\\
 File delete \textbf{/api/files/del} allows you to delete files (only in the \textit{upload/} folder area)\\
+File send \textbf{/api/files/send} this api allows you to send a file buffer via http post request\\
 \textit{File storage is basically a cloud, we can store files on it that we can access from any device in the network. Since the same folder as file storage is used by some scrapers, we can also have access to the scrapped data from any device}
 \subsection{scraper}
 Link scraper \textbf{/api/scraper/links} allows you to save all links from the webpage in the \textit{websitelink.json} format\\
@@ -68,9 +69,38 @@ Add task to routine \textbf{/api/task/interval/add} allows you to add a task to 
 Delete task from routine \textbf{/api/task/interval/kill/} allows you to stop the routine of a given task\\
 Count the tasks in the routine \textbf{/api/task/interval/count} this api function returns how many tasks run in intervals (routine)\\
 \textit{Routine allows you to perform tasks at intervals, so you don't have to manually perform a given activity from time to time - the software will do it for you!}
-
-\section{TODO}
-\subsection{technical informations}
-\subsection{examples}
-
+\subsection{console}
+Write text in the server console \textbf{(GET, POST)} \textbf{/api/console} allows you to print the sent text in the server console\\
+\textit{Useful for debugging, testing values or server settings}
+\subsection{configurations}
+config export \textbf{/api/cfg/export} allows you to export task settings and routines as .json files in the \textit{upload/} folder on the server\\
+config import \textbf{/api/cfg/import} allows you to import task settings and routines from a .json file located on the server in the \textit{upload/} folder, you can load an unlimited number of configurations on one run\\
+restart \textbf{/api/restart} allows you to reset all global Home Middleman values (including logs) and configuration without having to shut down the entire server\\
+\textit{configurations can be very useful if we want to be able to quickly load it with previously saved settings in the event of a server crash, or if we want to use many servers with the same configurations and we don't want to rewrite/reclick the same}
+\section{technical informations}
+% TODO
+\section{dynamic values}
+\textit{Dynamic values can be used in tasks, routines to perform the same operations with other values, e.g. displaying the current time in the console, sorting files into folders based on date, iterating through a website for scrapping}
+\subsection{$\sim$hour$\sim$}
+Dynamic hour value is replaced with the current time on the server in the format (minute\_hour)
+\subsection{$\sim$date$\sim$}
+Dynamic date value is replaced with the current date on the server in the format (day\_month\_year)
+\subsection{$\sim$inc\$num$\sim$}
+Dynamic value inc\$ requires an additional value (we replace \textbf{num} with a numerical value, e.g. 1), that is converted into a numerical value, and in the next iteration this value is increased by one
+\subsection{$\sim$dec\$num$\sim$}
+Dynamic value dec\$ requires an additional value (we replace \textbf{num} with a numerical value, e.g. 100), that is converted into a numerical value, and in the next iteration this value is decreased by one
+\subsection{$\sim$num1 + num2$\sim$}
+This dynamic value allows \textbf{num2} to be added to \textbf{num1} every iteration, for example if \textbf{num1} is 5 and \textbf{num2} is 1 then after the first iteration num1 will be 6, after the second 7 etc. (num1 value will be used as the value in the request, num2 is to inform the program how much to add every iteration)
+\subsection{$\sim$num1 - num2$\sim$}
+This dynamic value allows \textbf{num2} to be subtracted from \textbf{num1} every iteration, for example if \textbf{num1} is 5 and \textbf{num2} is 1 then after the first iteration num1 will be 4, after the second 3 etc. (num1 value will be used as the value in the request, num2 is to inform the program how much to substract every iteration)
+\subsection{$\sim$files path 0$\sim$}
+This dynamic value allows you to iterate filenames in the given folder (change \textit{'path'} to the path in the \textbf{'upload/'} folder, if you want to list files in this folder, change path to \textbf{/}), the last number in this value is the iteration index, I recommend always setting it as \textbf{0} to iterate through the entire folder without skipping files
+\subsection{dynamic lists}
+In Home Middleman there is also a dynamic list in which words will be iterated infinitely. The first word in the list after use will be removed from the beginning and added to the end of the list so that it can be used again.\\
+Example usage: $\sim${one two three}$\sim$ - in the first iteration only 'one' will be used and the list will become $\sim${two three one}$\sim$, then only 'two' will be used and the list will become $\sim${three one two}$\sim$ etc.\\
+Of course you can use as many words as you want in the list, it can be 1, it can be 512
+\subsection{summary}
+\textit{You can use dynamic values in HTTP/HTTPS GET/POST requests, naming folders, files, website query parameters, subdomains, domains, html forms and clipboards, additionally you can use more than one value at a time in a request!}
+\section{examples}
+% TODO
 \end{document}

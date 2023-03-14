@@ -54,9 +54,9 @@ function guiLinkUpload(){
 }
 
 function newTask(){
-    const tName = encodeURIComponent(document.getElementById('tName').value);
+    const tName = document.getElementById('tName').value.replace("?","%3F").replace("&", "%26");
     const tType = document.getElementById('tType').value;
-    let tData = encodeURIComponent(document.getElementById('tData').value);
+    let tData = document.getElementById('tData').value.replace("?","%3F").replace("&", "%26");
     let pType = document.getElementById('pType').value;
     let pData = document.getElementById('pData').value;
     const tData2 = document.getElementById('tData2').value;
