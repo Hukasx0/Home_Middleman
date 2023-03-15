@@ -95,9 +95,13 @@ This dynamic value allows \textbf{num2} to be added to \textbf{num1} every itera
 This dynamic value allows \textbf{num2} to be subtracted from \textbf{num1} every iteration, for example if \textbf{num1} is 5 and \textbf{num2} is 1 then after the first iteration num1 will be 4, after the second 3 etc. (num1 value will be used as the value in the request, num2 is to inform the program how much to substract every iteration)
 \subsection{$\sim$files path 0$\sim$}
 This dynamic value allows you to iterate filenames in the given folder (change \textit{'path'} to the path in the \textbf{'upload/'} folder, if you want to list files in this folder, change path to \textbf{/}), the last number in this value is the iteration index, I recommend always setting it as \textbf{0} to iterate through the entire folder without skipping files
+\subsection{$\sim$lines path 0$\sim$}
+This dynamic value allows you to iterate through the contents of a file separated by a newline (\textbackslash n), (change \textit{'path'} to the path to the file in the \textbf{'upload/'} folder), the last number is the iteration index, if you want to iterate from the beginning of the file, I recommend leaving the value \textbf{0}
+\subsection{$\sim$words path 0$\sim$}
+This dynamic value allows you to iterate through the contents of a file separated by a space, (change \textit{'path'} to the path to the file in the \textbf{'upload/'} folder), the last number is the iteration index, if you want to iterate from the beginning of the file, I recommend leaving the value \textbf{0}
 \subsection{dynamic lists}
 In Home Middleman there is also a dynamic list in which words will be iterated infinitely. The first word in the list after use will be removed from the beginning and added to the end of the list so that it can be used again.\\
-Example usage: $\sim${one two three}$\sim$ - in the first iteration only 'one' will be used and the list will become $\sim${two three one}$\sim$, then only 'two' will be used and the list will become $\sim${three one two}$\sim$ etc.\\
+Example usage: $\sim$\{one two three\}$\sim$ - in the first iteration only 'one' will be used and the list will become $\sim$\{two three one\}$\sim$, then only 'two' will be used and the list will become $\sim$\{three one two\}$\sim$ etc.\\
 Of course you can use as many words as you want in the list, it can be 1, it can be 512
 \subsection{summary}
 \textit{You can use dynamic values in HTTP/HTTPS GET/POST requests, naming folders, files, website query parameters, subdomains, domains, html forms and clipboards, additionally you can use more than one value at a time in a request!}

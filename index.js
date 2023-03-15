@@ -110,6 +110,16 @@ function getFilesAndSize(){
     };
 }
 
+function getLine(fileName, id){
+    const lines = fs.readFileSync(path.join(__dirname, 'upload/', fileName), 'utf-8').split("\n");
+    return lines[id] !== undefined ? lines[id] : "";
+}
+
+function getWord(fileName, id){
+    const words = fs.readFileSync(path.join(__dirname, 'upload/', fileName), 'utf-8').split(" ");
+    return words[id] !== undefined ? words[id] : "";
+}
+
 function doTask(req){
     const tName = String(req.body.name);
     let a = gTasks.find(ob => ob.name == tName);
@@ -120,25 +130,33 @@ function doTask(req){
                 .replace(/~{([^}]*)}~/g, (match, contents) => {return contents.split(' ')[0]})
                 .replace(/~(\d+)\s*\+\s*(\d+)~/, (match, co1, co2) => {return co1})
                 .replace(/~(\d+)\s*\-\s*(\d+)~/, (match, co1, co2) => {return co1})
-                .replace(/~files\s+(\S+)\s+(\d+)~/, (match, co1, co2) => {return fileById(co1, co2)});
+                .replace(/~files\s+(\S+)\s+(\d+)~/, (match, co1, co2) => {return fileById(co1, co2)})
+                .replace(/~lines\s+(.+?)\s+(\d+)~/, (match, co1, co2) => {return getLine(co1, co2)})
+                .replace(/~words\s+(.+?)\s+(\d+)~/, (match, co1, co2) => {return getWord(co1, co2)});
     const postData = a.postData.replace('~hour~',getHour()).replace("~date~",getDate()).replace(/~inc\$(\d+)~/, (m, p) => parseInt(p))
                 .replace(/~dec\$(\d+)~/, (m, p) => parseInt(p))
                 .replace(/~{([^}]*)}~/g, (match, contents) => {return contents.split(' ')[0]})
                 .replace(/~(\d+)\s*\+\s*(\d+)~/, (match, co1, co2) => {return co1})
                 .replace(/~(\d+)\s*\-\s*(\d+)~/, (match, co1, co2) => {return co1})
-                .replace(/~files\s+(\S+)\s+(\d+)~/, (match, co1, co2) => {return fileById(co1, co2)});
+                .replace(/~files\s+(\S+)\s+(\d+)~/, (match, co1, co2) => {return fileById(co1, co2)})
+                .replace(/~lines\s+(.+?)\s+(\d+)~/, (match, co1, co2) => {return getLine(co1, co2)})
+                .replace(/~words\s+(.+?)\s+(\d+)~/, (match, co1, co2) => {return getWord(co1, co2)});
     a.data = a.data.replace(/~inc\$(\d+)~/, (m, p) => "~inc$"+(parseInt(p)+1)+"~")
             .replace(/~dec\$(\d+)~/, (m, p) => "~dec$"+(parseInt(p)-1)+"~")
             .replace(/~{([^}]*)}~/g, (match, contents) => {return '~{' + (contents.split(' ')).slice(1).join(' ') + ` ${(contents.split(' ')).slice(0,1)}` + '}~'})
             .replace(/~(\d+)\s*\+\s*(\d+)~/, (match, co1, co2) => {return "~"+(parseInt(co1)+parseInt(co2))+" + "+co2+"~"})
             .replace(/~(\d+)\s*\-\s*(\d+)~/, (match, co1, co2) => {return "~"+(parseInt(co1)-parseInt(co2))+" - "+co2+"~"})
-            .replace(/~files\s+(\S+)\s+(\d+)~/, (match, co1, co2) => {return `~files ${co1} ${parseInt(co2) + 1}~`});
+            .replace(/~files\s+(\S+)\s+(\d+)~/, (match, co1, co2) => {return `~files ${co1} ${parseInt(co2) + 1}~`})
+            .replace(/~lines\s+(.+?)\s+(\d+)~/, (match, co1, co2) => {return `~lines ${co1} ${parseInt(co2)+1}~`})
+            .replace(/~words\s+(.+?)\s+(\d+)~/, (match, co1, co2) => {return `~words ${co1} ${parseInt(co2)+1}~`});
     a.postData = a.postData.replace(/~inc\$(\d+)~/, (m, p) => "~inc$"+(parseInt(p)+1)+"~")
             .replace(/~dec\$(\d+)~/, (m, p) => "~dec$"+(parseInt(p)-1)+"~")
             .replace(/~{([^}]*)}~/g, (match, contents) => {return '~{' + (contents.split(' ')).slice(1).join(' ')  + ` ${(contents.split(' ')).slice(0,1)}` + '}~'})
             .replace(/~(\d+)\s*\+\s*(\d+)~/, (match, co1, co2) => {return "~"+(parseInt(co1)+parseInt(co2))+" + "+co2+"~"})
             .replace(/~(\d+)\s*\-\s*(\d+)~/, (match, co1, co2) => {return "~"+(parseInt(co1)-parseInt(co2))+" - "+co2+"~"})
-            .replace(/~files\s+(\S+)\s+(\d+)~/, (match, co1, co2) => {return `~files ${co1} ${parseInt(co2) + 1}~`});
+            .replace(/~files\s+(\S+)\s+(\d+)~/, (match, co1, co2) => {return `~files ${co1} ${parseInt(co2) + 1}~`})
+            .replace(/~lines\s+(.+?)\s+(\d+)~/, (match, co1, co2) => {return `~lines ${co1} ${parseInt(co2)+1}~`})
+            .replace(/~words\s+(.+?)\s+(\d+)~/, (match, co1, co2) => {return `~words ${co1} ${parseInt(co2)+1}~`});
     switch(a.type){
     case "http":
 	    reqd = `http://${host}:${port}/api/httpp/${data}`;
