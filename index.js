@@ -223,6 +223,9 @@ function doTask(req){
     case "sendfile":
         reqd = `http://${host}:${port}/api/files/send${data}`;
         break;
+    case "reload":
+        reqd = `http://${host}:${port}/api/reload?cfg=${data}`;
+        break;
     default:
 	reqd = `http://example.com`;
     }
@@ -447,6 +450,43 @@ app.get('/api/restart', (req, res) => {
     gClip = [];
     gNotes = [];
     res.send("Home middleman has been restarted");
+});
+
+app.get('/api/reload', (req, res) => {
+    gTasks = [];
+    gTasksLog = [];
+    gIntervals = [];
+    gClip = [];
+    gNotes = [];
+    fs.readFile(path.join(__dirname, 'upload/', req.query.cfg), (err, jsoncfg) => {
+        jsoncfg = JSON.parse(jsoncfg);
+        jsoncfg.forEach((i) => {
+        switch (i.type){
+        case "task":
+            gTasks.push({
+            'name': i.data.name,
+            'type': i.data.type,
+            'data': i.data.data,
+            'postType': i.data.postType,
+            'postData': i.data.postData
+            });
+            break;
+        case "routine":
+            gIntervals.push({
+            'name': i.data.name,
+            'id': (setInterval(() => {
+                let r = req;
+                r.body.name = i.data.name;
+                doTask(r);
+            },i.data.time)),
+            'time': i.data.time
+            });
+        default:
+            break;
+        }
+        });
+        });
+    res.send(`Restarted Home Middleman and loaded ${req.query.cfg} config`);
 });
 
 app.get('/api/httpp/*', (req, res) => {

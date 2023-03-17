@@ -76,6 +76,7 @@ Write text in the server console \textbf{(GET, POST)} \textbf{/api/console} allo
 config export \textbf{/api/cfg/export} allows you to export task settings and routines as .json files in the \textit{upload/} folder on the server\\
 config import \textbf{/api/cfg/import} allows you to import task settings and routines from a .json file located on the server in the \textit{upload/} folder, you can load an unlimited number of configurations on one run\\
 restart \textbf{/api/restart} allows you to reset all global Home Middleman values (including logs) and configuration without having to shut down the entire server\\
+reload \textbf{/api/reload} allows you to reset all global Home Middleman values (including logs) and configuration without having to shut down the entire server. After restart, it loads the configuration of the Home Middleman server provided by you in .json format (located in the \textit{upload/} folder)\\
 \textit{configurations can be very useful if we want to be able to quickly load it with previously saved settings in the event of a server crash, or if we want to use many servers with the same configurations and we don't want to rewrite/reclick the same}
 \section{technical informations}
 % TODO
