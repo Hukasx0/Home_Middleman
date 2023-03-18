@@ -41,7 +41,9 @@ File send \textbf{/api/files/send} this api allows you to send a file buffer via
 Link scraper \textbf{/api/scraper/links} allows you to save all links from the webpage in the \textit{websitelink.json} format\\
 Img scraper \textbf{/api/scraper/imgs/} allows you to save all the available images from the webpage in the same format as they are on the web page\\
 Cheerio html scraper \textbf{/api/scraper/cheeriohtml} allows you to save any page elements in the .html format, the syntax of the Cheerio library is used to select page elements\\
-\textit{Scraper can be useful for collecting specific data of interest to us from html files hosted by other servers, in routine they can be extremely useful, for example, to collect news from the world every 24 hours}
+Rss tag scraper \textbf{/api/scraper/rss} allows you to save text between rss tags (no matter if tag name is e.g. \textit{test} or \textit{this:test}) to .txt file on server in \textit{upload/} folder\\
+\textit{\textbf{Attention!} recently in \textbf{Cheerio html scraper} and \textbf{Rss tag scraper}, it is possible to get values from many tags instead of one, by specifying more than one }\textbf{\&parse=}\textit{ in the url. In the front-end client, separate tags with spaces, e.g. \textbf{h3 p a title}}\\
+\textit{Scraper can be useful for collecting specific data of interest to us from html/rss files hosted by other servers, in routine they can be extremely useful, for example, to collect news from the world every 24 hours}
 \subsection{clipboard}
 Get the latest saved clip \textbf{/api/clip} this api function is designed to return text, which is then to be used by home middleman clients to save this text to the clipboard (at least that's how it works in the Python client and the front-end of the application)\\
 Save to clipboard \textbf{/api/clip/save} this api gives you the ability to save text to the clipboard for later use\\

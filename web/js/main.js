@@ -63,7 +63,10 @@ function newTask(){
     const sPath = document.getElementById('path').value;
     switch (tType) {
         case "cheerioc":
-            tData += `&parse=${tData2}&path=${sPath}`;
+            tData += `${manyParsers(tData2)}&path=${sPath}`;
+            break;
+        case "scraprss":
+            tData += `${manyParsers(tData2)}&path=${sPath}`;
             break;
         case "scrapurl":
             tData += `&path=${sPath}`;
@@ -178,4 +181,8 @@ function getRemove(linkC){
     }).catch(error => {
         alert(error);
     });
+}
+
+function manyParsers(str){
+    return str.split(" ").map(elem => "&parse="+elem).join("");
 }

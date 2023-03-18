@@ -74,6 +74,7 @@
                     <option value="scrapurl">linkScrapper</option>
                     <option value="scrapimg">imageScrapper</option>
                     <option value="cheerioc">cheerio custom scrapper</option>
+                    <option value="scraprss">rss custom scraper</option>
                     <option value="cclip">clear clipboard</option>
                     <option value="delfile">delete file</option>
                     <option value="mvfile">move file</option>
@@ -105,7 +106,7 @@
                   const spath = document.getElementById('path');
                 
                   sel.addEventListener('change', () => {
-                    if (sel.value === 'cheerioc') {
+                    if (sel.value === 'cheerioc' || sel.value == "scraprss") {
                       secin.hidden = false;
                       ptype.hidden = true;
                       pdata.hidden = true;

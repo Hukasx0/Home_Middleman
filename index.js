@@ -120,6 +120,14 @@ function getWord(fileName, id){
     return words[id] !== undefined ? words[id] : "";
 }
 
+function alwaysArr(value) {
+    if (Array.isArray(value)) {
+      return value;
+    } else {
+      return [value];
+    }
+  }
+
 function doTask(req){
     const tName = String(req.body.name);
     let a = gTasks.find(ob => ob.name == tName);
@@ -186,6 +194,9 @@ function doTask(req){
         break;
     case "cheerioc":
         reqd = `http://${host}:${port}/api/scraper/cheeriohtml/?link=${data}`;
+        break;
+    case "scraprss":
+        reqd = `http://${host}:${port}/api/scraper/rss?link=${data}`;
         break;
     case "cclip":
         reqd = `http://${host}:${port}/api/clip/erase`;
@@ -927,7 +938,7 @@ app.get('/api/scraper/imgs/', (req, res) => {
 
 app.get('/api/scraper/cheeriohtml', (req, res) => {
     const target = "https://"+req.query.link;
-    const elem = req.query.parse;
+    const elem = alwaysArr(req.query.parse);
     const purl = url.parse(target);
     const options = {
         host: purl.hostname,
@@ -948,16 +959,62 @@ app.get('/api/scraper/cheeriohtml', (req, res) => {
         });
         response.on('end', () => {
             let rets = [];
-            const $ = cheerio.load(data);
-            $(elem).each((i, el) => {
-                rets += $(el).html()
-              });
+            elem.forEach((m) => {
+                const $ = cheerio.load(data);
+                $(m).each((i, el) => {
+                    rets += $(el).html()
+                });
+            });
               const dirName = path.dirname(path.join(__dirname, `upload/${req.query.path}`));
               fs.mkdir(dirName, { recursive: true }, (err) => {
               const dirName = path.join(__dirname, 'upload/', req.query.path);
               fs.mkdir(dirName, { recursive: true }, (err) => {
-              fs.writeFile(path.join(__dirname, `upload/${req.query.path}${(req.query.link).replace(/[./]/g, '_')}.html`), rets, (erro) => {
-                res.send(`${elem} scrapped successfully!`);
+              fs.writeFile(path.join(__dirname, `upload/${req.query.path}${(purl.hostname).replace(/[./]/g, '_')}.html`), rets, (erro) => {
+                res.send(`html tags scrapped successfully!`);
+            });
+        });
+        });
+        });
+        }
+    });
+});
+
+app.get('/api/scraper/rss', (req, res) => {
+    const target = "https://"+req.query.link;
+    const elem = alwaysArr(req.query.parse);
+    const purl = url.parse(target);
+    const options = {
+        host: purl.hostname,
+        path: purl.path,
+        headers: {
+            'User-Agent': userAgent
+        }
+    };
+    https.get(options, (response) => {
+        if (response.statusCode >= 300 && response.statusCode < 400){
+            const repRedirectUrl = (response.headers.location).replace("https://", '');
+            res.redirect(`http://${host}:${port}/api/scraper/links/`+repRedirectUrl);
+        }
+        else{
+            let data = '';
+        response.on('data', (chunk) => {
+            data += chunk;
+        });
+        response.on('end', () => {
+            let tags = '';
+            elem.forEach((m) => {
+                const $ = new RegExp(`<${m}>([\\s\\S]*?)<\\/${m}>`, "g");
+                let tagm;
+                while ((tagm = $.exec(data))){
+                    tags += `${tagm[1]}\n`;
+                }
+            });
+              const dirName = path.dirname(path.join(__dirname, `upload/${req.query.path}`));
+              fs.mkdir(dirName, { recursive: true }, (err) => {
+              const dirName = path.join(__dirname, 'upload/', req.query.path);
+              fs.mkdir(dirName, { recursive: true }, (err) => {
+              fs.writeFile(path.join(__dirname, `upload/${req.query.path}${(purl.hostname).replace(/[./]/g, '_')}.txt`), tags, (erro) => {
+                res.send(`rss scrapped successfully!`);
             });
         });
         });
